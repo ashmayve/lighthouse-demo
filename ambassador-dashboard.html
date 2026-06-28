@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ambassador Dashboard — Lighthouse</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;cursor:none !important;}
+:root{--blue:#1a5cff;--sky:#4eb4ff;--yellow:#ffe14d;--dark:#050e2e;--mid:#1c2b5e;--mint:#3dffc0;--lilac:#c084fc;--coral:#ff6b5b;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:white;min-height:100vh;overflow-x:hidden;}
+.cursor{width:28px;height:28px;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;filter:drop-shadow(0 0 6px #ffe14d);}
+.cursor svg{width:100%;height:100%;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;background:rgba(5,14,46,0.98);border-right:1px solid rgba(192,132,252,0.15);display:flex;flex-direction:column;padding:32px 0;z-index:50;}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:0 24px 28px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;text-decoration:none;color:white;border-bottom:1px solid rgba(192,132,252,0.15);margin-bottom:24px;}
+.sidebar-logo svg{width:18px;height:24px;}
+.amba-badge{margin:0 24px 20px;padding:8px 14px;background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.25);border-radius:10px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--lilac);}
+.nav-section{padding:0 14px;margin-bottom:8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.5);cursor:none;border:none;background:none;width:100%;transition:all 0.18s;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:white;}
+.nav-item.active{background:rgba(192,132,252,0.15);color:var(--lilac);}
+.nav-item .icon{font-size:15px;width:20px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:20px 24px;border-top:1px solid rgba(192,132,252,0.15);}
+.amba-id{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px;font-weight:500;}
+.amba-id span{color:var(--lilac);font-weight:600;}
+.btn-signout{width:100%;padding:10px;border-radius:10px;background:rgba(255,107,91,0.1);border:1px solid rgba(255,107,91,0.2);color:#ff9b8f;font-size:12.5px;font-weight:600;cursor:none;transition:all 0.2s;}
+.main-content{margin-left:240px;flex:1;padding:48px;}
+.page-header{margin-bottom:36px;}
+.greeting{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,48px);font-weight:300;line-height:1.2;margin-bottom:6px;}
+.greeting em{font-style:italic;color:var(--lilac);}
+.subtext{font-size:14px;color:rgba(255,255,255,0.4);}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{background:rgba(255,255,255,0.05);border:1px solid rgba(192,132,252,0.12);border-radius:16px;padding:22px;}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px;}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;}
+.section-card{background:rgba(255,255,255,0.05);border:1px solid rgba(78,180,255,0.12);border-radius:20px;padding:28px;margin-bottom:24px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.section-head h3{font-size:14px;font-weight:600;}
+.vol-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.vol-row:last-child{border-bottom:none;}
+.vol-name-text{font-size:13.5px;font-weight:500;}
+.vol-id-text{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;font-family:monospace;}
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;}
+.badge-green{background:rgba(61,255,192,0.1);color:var(--mint);}
+.badge-lilac{background:rgba(192,132,252,0.1);color:var(--lilac);}
+.contrib-row{padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.contrib-row:last-child{border-bottom:none;}
+.contrib-title{font-size:13.5px;font-weight:500;margin-bottom:4px;}
+.contrib-meta{font-size:11.5px;color:rgba(255,255,255,0.35);}
+.empty{text-align:center;padding:40px;color:rgba(255,255,255,0.3);font-size:13px;}
+.loading{padding:30px;text-align:center;color:rgba(255,255,255,0.3);font-size:13px;}
+.page{display:none;}
+.page.active{display:block;}
+@media(max-width:900px){.sidebar{display:none;}.main-content{margin-left:0;padding:24px 16px;}.stats-row{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(255,225,77,0.95);color:#050e2e;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;">
+  ✦ Demo version — Supabase backend not connected. For the live site visit: <a href="https://lighthouseinitiative.pages.dev" style="color:#1a5cff;text-decoration:underline;" target="_blank">lighthouseinitiative.pages.dev</a>
+</div>
+<div style="height:40px"></div>
+<div class="cursor" id="cursor"><svg viewBox="0 0 40 40"><path d="M20 2 L22.5 17.5 L38 20 L22.5 22.5 L20 38 L17.5 22.5 L2 20 L17.5 17.5 Z" fill="#ffe14d"/><circle cx="20" cy="20" r="3.5" fill="white" opacity="0.9"/></svg></div>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg viewBox="0 0 22 32" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="27" width="12" height="4" rx="1.5" fill="#c8b070"/><polygon points="7,27 15,27 13.5,10 8.5,10" fill="#e8dfc8"/><polygon points="7.2,22 14.8,22 14.4,18 7.6,18" fill="#d43030" opacity="0.9"/><circle cx="11" cy="8.5" r="2.2" fill="#ffe57d" opacity="0.95"/><circle cx="11" cy="8.5" r="1.2" fill="white"/></svg>
+      Lighthouse
+    </a>
+    <div class="amba-badge">✦ Ambassador</div>
+    <div class="nav-section">
+      <button class="nav-item active" onclick="showTab('dashboard',this)"><span class="icon">◈</span> Dashboard</button>
+      <button class="nav-item" onclick="showTab('volunteers',this)"><span class="icon">◎</span> Volunteers at My School</button>
+      <button class="nav-item" onclick="showTab('contributions',this)"><span class="icon">✦</span> My Contributions</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="amba-id">Ambassador ID: <span id="sidebarId">—</span></div>
+      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="page active">
+      <div class="page-header">
+        <h1 class="greeting">Welcome, <em id="ambaName">Ambassador</em></h1>
+        <p class="subtext" id="ambaSchool">Loading your dashboard…</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Contributions Logged</div><div class="stat-value" id="statContribs" style="color:var(--lilac)">—</div></div>
+        <div class="stat-card"><div class="stat-label">Volunteers at My School</div><div class="stat-value" id="statVols" style="color:var(--sky)">—</div></div>
+        <div class="stat-card"><div class="stat-label">Ambassador Since</div><div class="stat-value" style="font-size:20px;padding-top:10px;color:var(--yellow)" id="statSince">—</div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-head"><h3>Recent Contributions</h3></div>
+        <div id="recentContribs"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- VOLUNTEERS AT MY SCHOOL -->
+    <div id="tab-volunteers" class="page">
+      <div class="page-header">
+        <h1 class="greeting">Volunteers at <em id="volSchoolName">My School</em></h1>
+        <p class="subtext">Active volunteers from your school currently on Lighthouse.</p>
+      </div>
+      <div class="section-card">
+        <div id="schoolVolsList"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- MY CONTRIBUTIONS -->
+    <div id="tab-contributions" class="page">
+      <div class="page-header">
+        <h1 class="greeting">My <em>Contributions</em></h1>
+        <p class="subtext">Everything you've done as a Lighthouse Ambassador.</p>
+      </div>
+      <div class="section-card">
+        <div id="allContribs"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let ambaData = null;
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'ambassador-login.html'; return; }
+
+  const { data: amb } = await sb.from('ambassadors').select('*').eq('email', session.user.email).single();
+  if (!amb) { window.location.href = 'ambassador-login.html'; return; }
+  ambaData = amb;
+
+  document.getElementById('ambaName').textContent = amb.first_name;
+  document.getElementById('ambaSchool').textContent = amb.school;
+  document.getElementById('sidebarId').textContent = amb.ambassador_id;
+  document.getElementById('volSchoolName').textContent = amb.school;
+  document.getElementById('statSince').textContent = new Date(amb.created_at).toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+
+  await loadDashboard();
+}
+
+async function loadDashboard() {
+  // Contributions
+  const { data: contribs } = await sb.from('ambassador_contributions').select('*').eq('ambassador_id', ambaData.ambassador_id).order('date', { ascending: false });
+  document.getElementById('statContribs').textContent = contribs ? contribs.length : 0;
+
+  const recentEl = document.getElementById('recentContribs');
+  if (!contribs || contribs.length === 0) {
+    recentEl.innerHTML = '<div class="empty">No contributions logged yet. Your executive will add them here.</div>';
+  } else {
+    recentEl.innerHTML = contribs.slice(0, 5).map(c => `
+      <div class="contrib-row">
+        <div class="contrib-title">${c.title}</div>
+        <div class="contrib-meta">${c.description || ''} · ${fmt(c.date)}</div>
+      </div>`).join('');
+  }
+
+  // Volunteers at school
+  const { data: vols } = await sb.from('volunteers').select('*').eq('school', ambaData.school).eq('role', 'volunteer');
+  document.getElementById('statVols').textContent = vols ? vols.length : 0;
+}
+
+async function loadSchoolVolunteers() {
+  const el = document.getElementById('schoolVolsList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data: vols } = await sb.from('volunteers').select('*').eq('school', ambaData.school).eq('role', 'volunteer').order('created_at', { ascending: false });
+  if (!vols || vols.length === 0) { el.innerHTML = '<div class="empty">No active volunteers from your school yet.</div>'; return; }
+  el.innerHTML = vols.map(v => `
+    <div class="vol-row">
+      <div>
+        <div class="vol-name-text">${v.first_name} ${v.last_name}</div>
+        <div class="vol-id-text">${v.volunteer_id} · ${v.grade || ''}</div>
+      </div>
+      <span class="badge badge-green">Active</span>
+    </div>`).join('');
+}
+
+async function loadAllContribs() {
+  const el = document.getElementById('allContribs');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data: contribs } = await sb.from('ambassador_contributions').select('*').eq('ambassador_id', ambaData.ambassador_id).order('date', { ascending: false });
+  if (!contribs || contribs.length === 0) { el.innerHTML = '<div class="empty">No contributions logged yet.</div>'; return; }
+  el.innerHTML = contribs.map(c => `
+    <div class="contrib-row">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="contrib-title">${c.title}</div>
+        <span class="badge badge-lilac">${c.type || 'Contribution'}</span>
+      </div>
+      ${c.description ? `<div class="contrib-meta" style="margin-top:4px">${c.description}</div>` : ''}
+      <div class="contrib-meta" style="margin-top:6px">${fmt(c.date)}</div>
+    </div>`).join('');
+}
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'volunteers') loadSchoolVolunteers();
+  if (tab === 'contributions') loadAllContribs();
+}
+
+async function signOut() { await sb.auth.signOut(); window.location.href = 'index.html'; }
+function fmt(d) { return d ? new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—'; }
+
+init();
+</script>
+<script>(function(){var el=document.getElementById('cursor'),mx=-200,my=-200,angle=0;document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});document.addEventListener('mouseleave',function(){mx=-200;my=-200;});function tick(){angle=(angle+1.5)%360;el.style.transform='translate('+(mx-14)+'px,'+(my-14)+'px) rotate('+angle+'deg)';requestAnimationFrame(tick);}requestAnimationFrame(tick);})();</script>
+</body>
+</html>

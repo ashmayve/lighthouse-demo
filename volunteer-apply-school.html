@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Volunteer Application — Lighthouse</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;cursor:none !important;}
+:root{--blue:#1a5cff;--sky:#4eb4ff;--yellow:#ffe14d;--dark:#050e2e;--mid:#1c2b5e;--mint:#3dffc0;--lilac:#c084fc;--coral:#ff6b5b;--offwhite:#f4f8ff;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:white;min-height:100vh;overflow-x:hidden;}
+.cursor{width:28px;height:28px;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;filter:drop-shadow(0 0 6px #ffe14d);}
+.cursor svg{width:100%;height:100%;}
+.bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 52px;background:rgba(5,14,46,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(78,180,255,0.1);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:white;text-decoration:none;display:flex;align-items:center;gap:10px;}
+.nav-logo svg{width:20px;height:28px;flex-shrink:0;}
+.nav-back{color:rgba(255,255,255,0.55);text-decoration:none;font-size:13px;font-weight:500;transition:color 0.2s;}
+.nav-back:hover{color:var(--yellow);}
+.page-wrap{padding:110px 52px 80px;max-width:760px;margin:0 auto;position:relative;z-index:1;}
+.page-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,5vw,64px);font-weight:300;line-height:1.1;margin-bottom:14px;}
+.page-title em{font-style:italic;}
+.page-sub{font-size:14.5px;color:rgba(255,255,255,0.45);line-height:1.8;margin-bottom:48px;max-width:540px;}
+.form-card{background:rgba(255,255,255,0.05);border:1px solid rgba(78,180,255,0.12);border-radius:24px;padding:40px;backdrop-filter:blur(20px);}
+.section-label{font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;}
+.field input,.field select,.field textarea{width:100%;padding:13px 16px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(78,180,255,0.15);border-radius:12px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s,background 0.2s;resize:none;}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,0.22);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);background:rgba(26,92,255,0.08);}
+.field select option{background:#050e2e;}
+.field small{display:block;font-size:11.5px;color:rgba(255,255,255,0.28);margin-top:6px;line-height:1.6;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.subjects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
+.subject-chip{position:relative;}
+.subject-chip input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;}
+.subject-chip label{display:block;padding:10px 14px;border-radius:10px;border:1.5px solid rgba(78,180,255,0.15);background:rgba(255,255,255,0.05);font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);text-align:center;transition:all 0.18s;}
+.subject-chip input:checked + label{background:rgba(26,92,255,0.25);border-color:var(--blue);color:white;}
+.subject-chip label:hover{border-color:rgba(78,180,255,0.4);color:white;}
+.upload-box{border:2px dashed rgba(78,180,255,0.2);border-radius:14px;padding:28px;text-align:center;background:rgba(255,255,255,0.03);transition:border-color 0.2s,background 0.2s;position:relative;}
+.upload-box:hover{border-color:rgba(78,180,255,0.4);background:rgba(26,92,255,0.06);}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;}
+.upload-icon{font-size:28px;margin-bottom:10px;}
+.upload-text{font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.55);margin-bottom:4px;}
+.upload-hint{font-size:11.5px;color:rgba(255,255,255,0.28);}
+.agree-box{display:flex;gap:14px;align-items:flex-start;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.07);margin-bottom:24px;}
+.agree-box input[type=checkbox]{width:17px;height:17px;flex-shrink:0;margin-top:2px;accent-color:var(--blue);}
+.agree-box label{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;}
+.btn-submit{width:100%;padding:15px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;transition:all 0.2s;}
+.alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:18px;display:none;line-height:1.7;}
+.alert.error{background:rgba(255,107,91,0.14);border:1px solid rgba(255,107,91,0.28);color:#ff9b8f;}
+.alert.success{background:rgba(61,255,192,0.08);border:1px solid rgba(61,255,192,0.2);color:var(--mint);}
+.alert.show{display:block;}
+.success-state{text-align:center;padding:60px 20px;display:none;}
+.success-state.show{display:block;}
+.success-icon{font-size:52px;margin-bottom:18px;}
+.success-state h2{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;margin-bottom:12px;}
+.success-state h2 em{font-style:italic;color:var(--yellow);}
+.success-state p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.8;max-width:380px;margin:0 auto 24px;}
+.btn-home{display:inline-block;padding:12px 30px;border-radius:100px;background:white;color:var(--dark);font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;}
+.btn-home:hover{background:var(--yellow);}
+.steps-bar{display:flex;align-items:center;gap:0;margin-bottom:40px;}
+.step-ind{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.3);}
+.step-ind.active{color:white;}
+.step-ind.done{color:var(--mint);}
+.step-num{width:26px;height:26px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.step-ind.done .step-num{background:var(--mint);border-color:var(--mint);color:var(--dark);}
+.step-ind.active .step-num{background:var(--blue);border-color:var(--blue);color:white;}
+.step-line{flex:1;height:1px;background:rgba(255,255,255,0.1);margin:0 12px;max-width:50px;}
+.btn-back-step{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);flex:0 0 auto;width:auto;padding:14px 22px;margin-right:10px;border-radius:12px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;}
+.g-star{position:fixed;pointer-events:none;animation:sparkle var(--sd,3s) ease-in-out infinite;animation-delay:var(--delay,0s);opacity:0;z-index:0;}
+@keyframes sparkle{0%{opacity:0;transform:scale(0.4)}30%{opacity:1;transform:scale(1.2)}60%{opacity:0.75;transform:scale(0.9)}100%{opacity:0;transform:scale(0.3)}}
+@media(max-width:680px){nav{padding:16px 20px;}.page-wrap{padding:90px 20px 60px;}.form-card{padding:24px 18px;}.field-row{grid-template-columns:1fr;}.subjects-grid{grid-template-columns:repeat(2,1fr);}}
+
+.bg-glow::before{content:'';position:absolute;top:0;right:0;width:500px;height:500px;background:radial-gradient(circle,rgba(255,225,77,0.1) 0%,transparent 70%);border-radius:50%;}
+.bg-glow::after{content:'';position:absolute;bottom:0;left:0;width:400px;height:400px;background:radial-gradient(circle,rgba(26,92,255,0.12) 0%,transparent 70%);border-radius:50%;}
+.page-eyebrow{color:var(--yellow);}
+.page-title em{color:var(--yellow);}
+.btn-submit{background:linear-gradient(135deg,#1a3aff,#5a40ff);color:white;box-shadow:0 8px 28px rgba(26,92,255,0.35);}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(26,92,255,0.45);}
+.btn-submit:disabled{opacity:0.5;transform:none;}
+
+/* ═══════════════════════════════════
+   MOBILE RESPONSIVE — max 768px
+═══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* NAV */
+  nav { padding: 14px 20px !important; }
+  .nav-logo { font-size: 20px !important; }
+  .nav-cta { padding: 8px 14px !important; font-size: 12px !important; }
+  .nav-links { display: none !important; }
+
+  /* HERO */
+  .hero { padding: 110px 20px 70px !important; }
+  .hero-title { font-size: clamp(38px, 10vw, 56px) !important; }
+  .hero-sub { font-size: 14px !important; }
+  .hero-btns { flex-direction: column !important; gap: 12px !important; }
+  .hero-btns a { width: 100% !important; text-align: center !important; justify-content: center !important; }
+  .hero-content { max-width: 100% !important; }
+
+  /* SECTIONS general */
+  .impact, .what, .how, .team, .gallery-section, .join,
+  .partners-section { padding: 60px 20px !important; }
+  .impact > *, .what > *, .how > *, .team > *, .join > * { padding-left: 0 !important; padding-right: 0 !important; }
+
+  /* IMPACT grid */
+  .impact-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .impact-nums { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+  .icard { padding: 22px 18px !important; }
+  .icard .big-n { font-size: 36px !important; }
+
+  /* WHAT WE DO */
+  .what-grid { grid-template-columns: 1fr !important; gap: 16px !important; margin-top: 36px !important; }
+
+  /* HOW */
+  .steps { grid-template-columns: 1fr !important; border-radius: 16px !important; }
+  .step-line { display: none !important; }
+  .step { padding: 28px 22px !important; }
+
+  /* TEAM */
+  .team-grid { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+
+  /* GALLERY carousel */
+  .gallery-section { padding: 60px 20px !important; }
+  .carousel-slide { flex: 0 0 85% !important; }
+
+  /* PARTNERS */
+  .partners-section .section-tag,
+  .partners-section h2,
+  .partners-section p { padding-left: 20px !important; }
+
+  /* JOIN */
+  .join { padding: 70px 20px !important; }
+  .join h2 { font-size: clamp(34px, 9vw, 52px) !important; }
+  .join-btns { flex-direction: column !important; align-items: center !important; }
+  .btn-white, .btn-outline-white { width: 100% !important; justify-content: center !important; text-align: center !important; }
+
+  /* SECTION titles */
+  .sec-title { font-size: clamp(32px, 8vw, 48px) !important; }
+
+  /* FOOTER */
+  .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .ocean-floor { padding: 48px 20px 32px !important; }
+
+  /* EXPLORE / CHOICE CARDS */
+  .choices { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .choice-card { padding: 34px 26px !important; }
+  main { padding: 100px 16px 60px !important; }
+  .page-title { font-size: clamp(36px, 9vw, 56px) !important; }
+  .page-sub { font-size: 14px !important; }
+
+  /* FORM PAGES */
+  .page-wrap { padding: 90px 16px 60px !important; max-width: 100% !important; }
+  .form-card { padding: 22px 16px !important; }
+  .field-row { grid-template-columns: 1fr !important; }
+  .subjects-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .steps-bar { gap: 4px !important; }
+  .step-ind { font-size: 10px !important; gap: 6px !important; }
+  .step-line { max-width: 20px !important; }
+
+  /* LOGIN */
+  .portal-card { padding: 28px 18px !important; }
+
+  /* GALLERY page */
+  .gallery-hero { padding: 110px 20px 44px !important; }
+  .filter-bar { padding: 24px 16px 0 !important; flex-wrap: wrap !important; }
+  .gallery-grid { padding: 24px 16px 60px !important; grid-template-columns: 1fr 1fr !important; }
+  .gallery-item.tall { grid-row: span 1 !important; min-height: 200px !important; }
+
+  /* SIDEBAR ADMIN/DASHBOARD */
+  .sidebar { display: none !important; }
+  .main-content { margin-left: 0 !important; padding: 24px 16px 60px !important; }
+  .stats-row { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+  .content-grid { grid-template-columns: 1fr !important; }
+  .data-table { font-size: 12px !important; }
+  .data-table th, .data-table td { padding: 10px 12px !important; }
+  .action-row { flex-wrap: wrap !important; gap: 6px !important; }
+}
+
+@media (max-width: 420px) {
+  .gallery-grid { grid-template-columns: 1fr !important; }
+  .team-grid { grid-template-columns: 1fr !important; }
+  .impact-nums { grid-template-columns: 1fr !important; }
+  .subjects-grid { grid-template-columns: 1fr 1fr !important; }
+  .info-grid { grid-template-columns: 1fr !important; }
+}
+
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(255,225,77,0.95);color:#050e2e;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;">
+  ✦ Demo version — Supabase backend not connected. For the live site visit: <a href="https://lighthouseinitiative.pages.dev" style="color:#1a5cff;text-decoration:underline;" target="_blank">lighthouseinitiative.pages.dev</a>
+</div>
+<div style="height:40px"></div>
+<div class="cursor" id="cursor"><svg viewBox="0 0 40 40"><path d="M20 2 L22.5 17.5 L38 20 L22.5 22.5 L20 38 L17.5 22.5 L2 20 L17.5 17.5 Z" fill="#ffe14d"/><circle cx="20" cy="20" r="3.5" fill="white" opacity="0.9"/></svg></div><div class="bg-glow"></div><svg class="g-star" style="top:12%;right:4%;--sd:3s;--delay:0s;width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 1 L13 11 L23 12 L13 13 L12 23 L11 13 L1 12 L11 11 Z" fill="#ffe14d"/></svg><svg class="g-star" style="top:75%;left:3%;--sd:2.6s;--delay:-1s;width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 1 L13 11 L23 12 L13 13 L12 23 L11 13 L1 12 L11 11 Z" fill="#c084fc"/></svg>
+<nav>
+  <a href="index.html" class="nav-logo"><svg viewBox="0 0 22 32" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="27" width="12" height="4" rx="1.5" fill="#c8b070"/><polygon points="7,27 15,27 13.5,10 8.5,10" fill="#e8dfc8"/><polygon points="7.2,22 14.8,22 14.4,18 7.6,18" fill="#d43030" opacity="0.9"/><circle cx="11" cy="8.5" r="2.2" fill="#ffe57d" opacity="0.95"/><circle cx="11" cy="8.5" r="1.2" fill="white"/></svg> Lighthouse</a>
+  <a href="volunteer-type.html" class="nav-back">← Back</a>
+</nav>
+<div class="page-wrap">
+  <div class="page-eyebrow">School Volunteer · Application</div>
+  <h1 class="page-title">Join Lighthouse<br><em>from school</em></h1>
+  <p class="page-sub">Fill in your details below. Your application will be reviewed by the Lighthouse team and we'll be in touch within 5–7 school days.</p>
+
+  <div class="steps-bar">
+    <div class="step-ind active" id="si1"><div class="step-num">1</div> Personal Info</div>
+    <div class="step-line"></div>
+    <div class="step-ind" id="si2"><div class="step-num">2</div> School & Subjects</div>
+    <div class="step-line"></div>
+    <div class="step-ind" id="si3"><div class="step-num">3</div> Statement & Upload</div>
+  </div>
+
+  <div class="form-card">
+    <div class="alert error" id="formErr"></div>
+
+    <!-- STEP 1 -->
+    <div id="step1">
+      <div class="section-label">Personal Information</div>
+      <div class="field-row">
+        <div class="field"><label>First Name</label><input type="text" id="firstName" placeholder="Jane"></div>
+        <div class="field"><label>Last Name</label><input type="text" id="lastName" placeholder="Doe"></div>
+      </div>
+      <div class="field"><label>Email Address</label><input type="email" id="email" placeholder="your@email.com"><small>This becomes your login email once accepted.</small></div>
+      <div class="field-row">
+        <div class="field"><label>Phone Number</label><input type="tel" id="phone" placeholder="+966 5x xxx xxxx"></div>
+        <div class="field"><label>Date of Birth</label><input type="date" id="dob"></div>
+      </div>
+      <button class="btn-submit" onclick="goStep(2)">Continue →</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" style="display:none">
+      <div class="section-label">School & Academic Info</div>
+      <div class="field">
+        <label>School Name</label>
+        <select id="school">
+          <option value="">Select your school</option>
+          <option>Al Muna International School</option>
+            <option>Indian International School Dammam</option>
+          <option>Dunes International School</option>
+          <option>Pakistani International School</option>
+          <option>Al Forsan Schools</option>
+          <option>International Schools Group (ISG)</option>
+          <option>Dhahran Ahliyya Schools</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+        <label>City</label>
+        <input type="text" id="city" placeholder="e.g. Dammam, Mumbai, Karachi…">
+      </div>
+        <div class="field">
+          <label>Country</label>
+          <select id="country">
+            <option value="">Select country</option>
+            <option>Saudi Arabia</option>
+            <option>India</option>
+            <option>Pakistan</option>
+            <option>Egypt</option>
+            <option>Jordan</option>
+            <option>Lebanon</option>
+            <option>Philippines</option>
+            <option>Bangladesh</option>
+            <option>Sri Lanka</option>
+            <option>United Kingdom</option>
+            <option>United States</option>
+            <option>Canada</option>
+            <option>Australia</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Grade</label>
+          <select id="grade">
+            <option value="">Select grade</option>
+            <option>Grade 8</option><option>Grade 9</option><option>Grade 10</option>
+            <option>Grade 11</option><option>Grade 12</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Board / Curriculum</label>
+          <select id="board">
+            <option value="">Select board</option>
+            <option>CBSE</option><option>ICSE</option><option>British Curriculum</option>
+            <option>American Curriculum</option><option>IB</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>How did you hear about Lighthouse?</label>
+        <select id="referral">
+          <option value="">Select one</option>
+          <option>From a friend</option>
+          <option>School announcement</option>
+          <option>Social media</option>
+          <option>Lighthouse event</option>
+          <option>Teacher / counsellor</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Subjects You're Currently Taking</label>
+        <small style="display:block;color:rgba(255,255,255,0.35);font-size:11.5px;margin-bottom:12px;">Select all subjects on your current timetable.</small>
+        <div class="subjects-grid">
+  <div class="subject-chip"><input type="checkbox" id="s-math" name="subjects" value="Mathematics"><label for="s-math">Mathematics</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-eng" name="subjects" value="English"><label for="s-eng">English</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-sci" name="subjects" value="Science"><label for="s-sci">Science</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-phys" name="subjects" value="Physics"><label for="s-phys">Physics</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-chem" name="subjects" value="Chemistry"><label for="s-chem">Chemistry</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-bio" name="subjects" value="Biology"><label for="s-bio">Biology</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-hist" name="subjects" value="History"><label for="s-hist">History</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-geo" name="subjects" value="Geography"><label for="s-geo">Geography</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-arabic" name="subjects" value="Arabic"><label for="s-arabic">Arabic</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-ict" name="subjects" value="ICT / CS"><label for="s-ict">ICT / CS</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-econ" name="subjects" value="Economics"><label for="s-econ">Economics</label></div>
+  <div class="subject-chip"><input type="checkbox" id="s-art" name="subjects" value="Art"><label for="s-art">Art</label></div>
+</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn-back-step" onclick="goStep(1)">← Back</button>
+        <button class="btn-submit" onclick="goStep(3)" style="flex:1">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" style="display:none">
+      <div class="section-label">Statement & Documents</div>
+      <div class="field">
+        <label>Why do you want to volunteer with Lighthouse? (50–300 words)</label>
+        <textarea id="statement" rows="6" placeholder="Tell us what draws you to Lighthouse and what you hope to contribute…" oninput="updateCount(this,'wc')"></textarea>
+        <div style="text-align:right;font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;" id="wc">0 words</div>
+      </div>
+      <div class="field">
+        <label>Skills or experience relevant to volunteering</label>
+        <textarea id="skills" rows="3" placeholder="e.g. tutoring siblings, mentoring juniors, art, sports coaching…"></textarea>
+      </div>
+      <div class="field">
+        <label>Latest Report Card</label>
+        <small style="display:block;color:rgba(255,255,255,0.35);font-size:11.5px;margin-bottom:10px;">Please upload your most recent report card or transcript. This helps us understand your academic background. PDF or image accepted.</small>
+        <div class="upload-box" id="uploadBox">
+          <input type="file" id="reportCard" accept=".pdf,.jpg,.jpeg,.png" onchange="showFile(this)">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text" id="uploadText">Click or drag to upload your latest report card</div>
+          <div class="upload-hint">PDF, JPG or PNG · Max 10MB</div>
+        </div>
+      </div>
+      <div class="agree-box">
+        <input type="checkbox" id="agree">
+        <label for="agree">I confirm all information provided is accurate and I agree to Lighthouse's volunteer <a href="#" style="color:var(--sky)">terms</a>.</label>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-back-step" onclick="goStep(2)">← Back</button>
+        <button class="btn-submit" id="submitBtn" onclick="handleSubmit()" style="flex:1">Submit Application ✦</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-state" id="successState">
+      <div class="success-icon">✦</div>
+      <h2>Application <em>submitted!</em></h2>
+      <p>Thank you! The Lighthouse team will review your application and reach out within 5–7 school days. We'll send your login details once you're accepted.</p>
+      <a href="index.html" class="btn-home">Back to Lighthouse →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+function goStep(n) {
+  const err = document.getElementById('formErr');
+  err.classList.remove('show');
+  if (n === 2) {
+    if (!document.getElementById('firstName').value.trim()) return showErr('Please enter your first name.');
+    if (!document.getElementById('lastName').value.trim()) return showErr('Please enter your last name.');
+    if (!document.getElementById('email').value.includes('@')) return showErr('Please enter a valid email.');
+    if (!document.getElementById('dob').value) return showErr('Please enter your date of birth.');
+  }
+  if (n === 3) {
+    if (!document.getElementById('school').value) return showErr('Please select your school.');
+    if (!document.getElementById('city').value) return showErr('Please select your city.');
+    if (!document.getElementById('country').value) return showErr('Please select your country.');
+    if (!document.getElementById('grade').value) return showErr('Please select your grade.');
+    const subs = [...document.querySelectorAll('input[name=subjects]:checked')];
+    if (subs.length === 0) return showErr('Please select at least one subject you are taking.');
+  }
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).style.display = i===n ? 'block' : 'none';
+    const ind = document.getElementById('si'+i);
+    ind.className = 'step-ind' + (i<n?' done':i===n?' active':'');
+    ind.querySelector('.step-num').textContent = i<n ? '✓' : i;
+  });
+}
+
+async function handleSubmit() {
+  const statement = document.getElementById('statement').value.trim();
+  const words = statement.split(/\s+/).filter(Boolean).length;
+  if (words < 50) return showErr('Please write at least 50 words in your statement.');
+  if (!document.getElementById('agree').checked) return showErr('Please agree to the terms.');
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  // Upload report card to Supabase Storage if provided
+  let reportUrl = null;
+  const file = document.getElementById('reportCard').files[0];
+  if (file) {
+    const path = `report-cards/${Date.now()}-${file.name}`;
+    const { data: upData, error: upErr } = await sb.storage.from('applications').upload(path, file);
+    if (!upErr) reportUrl = upData.path;
+  }
+
+  const subs = [...document.querySelectorAll('input[name=subjects]:checked')].map(c=>c.value);
+  const payload = {
+    first_name: document.getElementById('firstName').value.trim(),
+    last_name: document.getElementById('lastName').value.trim(),
+    email: document.getElementById('email').value.trim().toLowerCase(),
+    phone: document.getElementById('phone').value.trim(),
+    date_of_birth: document.getElementById('dob').value,
+    school: document.getElementById('school').value,
+    city: document.getElementById('city').value,
+    country: document.getElementById('country').value,
+    grade: document.getElementById('grade').value,
+    board: document.getElementById('board').value,
+    subjects: subs,
+    statement, skills: document.getElementById('skills').value.trim(),
+    report_card_url: reportUrl,
+    referral: document.getElementById('referral').value,
+    applicant_type: 'school',
+    status: 'pending', applied_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('applications').insert(payload);
+  if (error) { showErr('Submission error: ' + error.message); btn.disabled=false; btn.textContent='Submit Application ✦'; return; }
+  [1,2,3].forEach(i => document.getElementById('step'+i).style.display='none');
+  document.getElementById('successState').classList.add('show');
+  document.getElementById('successState').style.display='block';
+}
+
+
+
+function showErr(msg) { const e=document.getElementById('formErr'); e.textContent=msg; e.classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); }
+function updateCount(el, id) { document.getElementById(id).textContent = el.value.trim().split(/\s+/).filter(Boolean).length + ' words'; }
+function showFile(input) { if(input.files[0]) document.getElementById('uploadText').textContent = '✓ ' + input.files[0].name; }
+</script>
+<script>(function(){var el=document.getElementById('cursor'),mx=-200,my=-200,angle=0;document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});document.addEventListener('mouseleave',function(){mx=-200;my=-200;});function tick(){angle=(angle+1.5)%360;el.style.transform='translate('+(mx-14)+'px,'+(my-14)+'px) rotate('+angle+'deg)';requestAnimationFrame(tick);}requestAnimationFrame(tick);})();</script>
+</body>
+</html>

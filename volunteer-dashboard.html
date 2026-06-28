@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Lighthouse Volunteer Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+(function() {
+  function initCursor() {
+    var el = document.getElementById('cursor');
+    if (!el) return;
+    var mx = -200, my = -200, angle = 0;
+    document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+    document.addEventListener('mouseleave', function() { mx = -200; my = -200; });
+    function tick() {
+      angle = (angle + 1.5) % 360;
+      el.style.transform = 'translate(' + (mx - 14) + 'px,' + (my - 14) + 'px) rotate(' + angle + 'deg)';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCursor);
+  else initCursor();
+})();
+</script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --blue: #1a5cff; --sky: #4eb4ff; --yellow: #ffe14d;
+  --dark: #050e2e; --mid: #1c2b5e; --offwhite: #f4f8ff;
+  --coral: #ff6b5b; --mint: #3dffc0; --lilac: #c084fc;
+  --glass: rgba(255,255,255,0.05); --glass-border: rgba(78,180,255,0.12);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: white; min-height: 100vh; cursor: none; overflow-x: hidden; }
+
+.cursor { width: 28px; height: 28px; position: fixed; top: 0; left: 0; transform: translate(-200px, -200px); pointer-events: none; z-index: 9999; will-change: transform; filter: drop-shadow(0 0 6px #ffe14d); } * { cursor: none !important; }
+.cursor svg { width: 100%; height: 100%; }
+
+/* SIDEBAR */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0;
+  background: rgba(5,14,46,0.98); border-right: 1px solid var(--glass-border);
+  display: flex; flex-direction: column; padding: 32px 0; z-index: 50;
+}
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 24px 32px; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; text-decoration: none; color: white; border-bottom: 1px solid var(--glass-border); margin-bottom: 24px; }
+.sidebar-logo svg { width: 18px; height: 24px; flex-shrink: 0; }
+
+.nav-section { padding: 0 14px; margin-bottom: 8px; }
+.nav-section-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 10px; margin-bottom: 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.5); text-decoration: none; transition: all 0.18s; cursor: none; border: none; background: none; width: 100%; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+.nav-item.active { background: rgba(26,92,255,0.2); color: white; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+.sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid var(--glass-border); }
+.vol-id-badge { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 14px; font-weight: 500; }
+.vol-id-badge span { color: var(--sky); font-weight: 600; }
+.btn-signout { width: 100%; padding: 10px; border-radius: 10px; background: rgba(255,107,91,0.1); border: 1px solid rgba(255,107,91,0.2); color: #ff9b8f; font-size: 12.5px; font-weight: 600; cursor: none; transition: all 0.2s; }
+.btn-signout:hover { background: rgba(255,107,91,0.2); }
+
+/* MAIN CONTENT */
+.main-content { margin-left: 240px; flex: 1; padding: 48px 48px 80px; }
+
+.page-header { margin-bottom: 40px; }
+.greeting { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 4vw, 48px); font-weight: 300; line-height: 1.2; margin-bottom: 6px; }
+.greeting em { font-style: italic; color: var(--yellow); }
+.subtext { font-size: 14px; color: rgba(255,255,255,0.4); }
+
+/* STATS CARDS */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 36px; }
+.stat-card {
+  background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 28px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before { content:''; position:absolute; top:-40px; right:-40px; width:120px; height:120px; border-radius:50%; opacity:0.06; }
+.stat-card:nth-child(1)::before { background: var(--blue); }
+.stat-card:nth-child(2)::before { background: var(--mint); }
+.stat-card:nth-child(3)::before { background: var(--lilac); }
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+.stat-value { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; line-height: 1; margin-bottom: 6px; }
+.stat-card:nth-child(1) .stat-value { color: var(--sky); }
+.stat-card:nth-child(2) .stat-value { color: var(--mint); }
+.stat-card:nth-child(3) .stat-value { color: var(--lilac); }
+.stat-note { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+/* GRID LAYOUT */
+.content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+
+/* SECTION CARD */
+.section-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 28px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.section-head h3 { font-size: 14px; font-weight: 600; }
+.section-head a { font-size: 12px; color: var(--sky); text-decoration: none; }
+.section-head a:hover { color: white; }
+
+/* OPPORTUNITIES */
+.opp-item { padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; gap: 14px; align-items: flex-start; }
+.opp-item:last-child { border-bottom: none; padding-bottom: 0; }
+.opp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); margin-top: 6px; flex-shrink: 0; }
+.opp-dot.green { background: var(--mint); }
+.opp-dot.purple { background: var(--lilac); }
+.opp-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.opp-meta { font-size: 12px; color: rgba(255,255,255,0.35); display: flex; gap: 14px; flex-wrap: wrap; }
+.opp-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; background: rgba(26,92,255,0.15); color: var(--sky); margin-top: 6px; }
+.opp-badge.green { background: rgba(61,255,192,0.1); color: var(--mint); }
+
+/* HOURS LOG */
+.log-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.log-item:last-child { border-bottom: none; }
+.log-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.log-date { font-size: 11px; color: rgba(255,255,255,0.35); }
+.log-hrs { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--yellow); font-weight: 300; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 13px; }
+.empty-state .empty-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.5; }
+
+/* LOADING */
+.loading { color: rgba(255,255,255,0.3); font-size: 13px; padding: 20px 0; }
+
+/* ANNOUNCEMENT CARD */
+.announcement { background: linear-gradient(135deg, rgba(26,92,255,0.15), rgba(192,132,252,0.08)); border: 1px solid rgba(26,92,255,0.2); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+.ann-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--sky); margin-bottom: 8px; }
+.ann-text { font-size: 13.5px; color: rgba(255,255,255,0.75); line-height: 1.7; }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 24px 20px 60px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .content-grid { grid-template-columns: 1fr; }
+}
+
+.g-star { position: fixed; pointer-events: none; animation: sparkle var(--sd,3s) ease-in-out infinite; animation-delay: var(--delay,0s); opacity: 0; z-index: 0; }
+@keyframes sparkle { 0%{opacity:0;transform:scale(0.4)} 30%{opacity:1;transform:scale(1.2)} 60%{opacity:0.75;transform:scale(0.9)} 100%{opacity:0;transform:scale(0.3)} }
+
+/* ═══════════════════════════════════
+   MOBILE RESPONSIVE — max 768px
+═══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* NAV */
+  nav { padding: 14px 20px !important; }
+  .nav-logo { font-size: 20px !important; }
+  .nav-cta { padding: 8px 14px !important; font-size: 12px !important; }
+  .nav-links { display: none !important; }
+
+  /* HERO */
+  .hero { padding: 110px 20px 70px !important; }
+  .hero-title { font-size: clamp(38px, 10vw, 56px) !important; }
+  .hero-sub { font-size: 14px !important; }
+  .hero-btns { flex-direction: column !important; gap: 12px !important; }
+  .hero-btns a { width: 100% !important; text-align: center !important; justify-content: center !important; }
+  .hero-content { max-width: 100% !important; }
+
+  /* SECTIONS general */
+  .impact, .what, .how, .team, .gallery-section, .join,
+  .partners-section { padding: 60px 20px !important; }
+  .impact > *, .what > *, .how > *, .team > *, .join > * { padding-left: 0 !important; padding-right: 0 !important; }
+
+  /* IMPACT grid */
+  .impact-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .impact-nums { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+  .icard { padding: 22px 18px !important; }
+  .icard .big-n { font-size: 36px !important; }
+
+  /* WHAT WE DO */
+  .what-grid { grid-template-columns: 1fr !important; gap: 16px !important; margin-top: 36px !important; }
+
+  /* HOW */
+  .steps { grid-template-columns: 1fr !important; border-radius: 16px !important; }
+  .step-line { display: none !important; }
+  .step { padding: 28px 22px !important; }
+
+  /* TEAM */
+  .team-grid { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+
+  /* GALLERY carousel */
+  .gallery-section { padding: 60px 20px !important; }
+  .carousel-slide { flex: 0 0 85% !important; }
+
+  /* PARTNERS */
+  .partners-section .section-tag,
+  .partners-section h2,
+  .partners-section p { padding-left: 20px !important; }
+
+  /* JOIN */
+  .join { padding: 70px 20px !important; }
+  .join h2 { font-size: clamp(34px, 9vw, 52px) !important; }
+  .join-btns { flex-direction: column !important; align-items: center !important; }
+  .btn-white, .btn-outline-white { width: 100% !important; justify-content: center !important; text-align: center !important; }
+
+  /* SECTION titles */
+  .sec-title { font-size: clamp(32px, 8vw, 48px) !important; }
+
+  /* FOOTER */
+  .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .ocean-floor { padding: 48px 20px 32px !important; }
+
+  /* EXPLORE / CHOICE CARDS */
+  .choices { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .choice-card { padding: 34px 26px !important; }
+  main { padding: 100px 16px 60px !important; }
+  .page-title { font-size: clamp(36px, 9vw, 56px) !important; }
+  .page-sub { font-size: 14px !important; }
+
+  /* FORM PAGES */
+  .page-wrap { padding: 90px 16px 60px !important; max-width: 100% !important; }
+  .form-card { padding: 22px 16px !important; }
+  .field-row { grid-template-columns: 1fr !important; }
+  .subjects-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .steps-bar { gap: 4px !important; }
+  .step-ind { font-size: 10px !important; gap: 6px !important; }
+  .step-line { max-width: 20px !important; }
+
+  /* LOGIN */
+  .portal-card { padding: 28px 18px !important; }
+
+  /* GALLERY page */
+  .gallery-hero { padding: 110px 20px 44px !important; }
+  .filter-bar { padding: 24px 16px 0 !important; flex-wrap: wrap !important; }
+  .gallery-grid { padding: 24px 16px 60px !important; grid-template-columns: 1fr 1fr !important; }
+  .gallery-item.tall { grid-row: span 1 !important; min-height: 200px !important; }
+
+  /* SIDEBAR ADMIN/DASHBOARD */
+  .sidebar { display: none !important; }
+  .main-content { margin-left: 0 !important; padding: 24px 16px 60px !important; }
+  .stats-row { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+  .content-grid { grid-template-columns: 1fr !important; }
+  .data-table { font-size: 12px !important; }
+  .data-table th, .data-table td { padding: 10px 12px !important; }
+  .action-row { flex-wrap: wrap !important; gap: 6px !important; }
+}
+
+@media (max-width: 420px) {
+  .gallery-grid { grid-template-columns: 1fr !important; }
+  .team-grid { grid-template-columns: 1fr !important; }
+  .impact-nums { grid-template-columns: 1fr !important; }
+  .subjects-grid { grid-template-columns: 1fr 1fr !important; }
+  .info-grid { grid-template-columns: 1fr !important; }
+}
+
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(255,225,77,0.95);color:#050e2e;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;">
+  ✦ Demo version — Supabase backend not connected. For the live site visit: <a href="https://lighthouseinitiative.pages.dev" style="color:#1a5cff;text-decoration:underline;" target="_blank">lighthouseinitiative.pages.dev</a>
+</div>
+<div style="height:40px"></div>
+<div class="cursor" id="cursor"></div>
+<svg class="g-star" style="top:15%;right:2%;--sd:3s;--delay:0s;width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 1 L13 11 L23 12 L13 13 L12 23 L11 13 L1 12 L11 11 Z" fill="#ffe14d"/></svg>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg viewBox="0 0 22 32" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="27" width="12" height="4" rx="1.5" fill="#c8b070"/>
+        <polygon points="7,27 15,27 13.5,10 8.5,10" fill="#e8dfc8"/>
+        <polygon points="7.2,22 14.8,22 14.4,18 7.6,18" fill="#d43030" opacity="0.9"/>
+        <circle cx="11" cy="8.5" r="2.2" fill="#ffe57d" opacity="0.95"/>
+        <circle cx="11" cy="8.5" r="1.2" fill="white"/>
+      </svg>
+      Lighthouse
+    </a>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Portal</div>
+      <button class="nav-item active" onclick="showPage('dashboard')"><span class="icon">◈</span> Dashboard</button>
+      <button class="nav-item" onclick="showPage('opportunities')"><span class="icon">✦</span> Opportunities</button>
+      <button class="nav-item" onclick="showPage('hours')"><span class="icon">◷</span> My Hours</button>
+      <button class="nav-item" onclick="showPage('profile')"><span class="icon">◎</span> My Profile</button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="vol-id-badge">Volunteer ID: <span id="sidebarId">Loading…</span></div>
+      <button class="btn-signout" onclick="handleSignOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard">
+      <div class="page-header">
+        <h1 class="greeting">Good to see you, <em id="volunteerName">Volunteer</em></h1>
+        <p class="subtext" id="dashboardDate">Loading your portal…</p>
+      </div>
+
+      <div class="announcement">
+        <div class="ann-eyebrow">📢 Announcement</div>
+        <div class="ann-text" id="announcement">Welcome to the Lighthouse Volunteer Portal! Check the Opportunities tab for upcoming sessions you can sign up for.</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Hours</div>
+          <div class="stat-value" id="totalHours">—</div>
+          <div class="stat-note">Logged & verified</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sessions Attended</div>
+          <div class="stat-value" id="sessionsCount">—</div>
+          <div class="stat-note">This academic year</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Hours</div>
+          <div class="stat-value" id="pendingHours">—</div>
+          <div class="stat-note">Awaiting verification</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="section-card">
+          <div class="section-head">
+            <h3>Upcoming Opportunities</h3>
+            <button class="nav-item" onclick="showPage('opportunities')" style="padding:0;font-size:12px;color:var(--sky);background:none;border:none;width:auto;cursor:none;">View all →</button>
+          </div>
+          <div id="dashOpps"><div class="loading">Loading opportunities…</div></div>
+        </div>
+        <div class="section-card">
+          <div class="section-head">
+            <h3>Recent Hours</h3>
+            <button class="nav-item" onclick="showPage('hours')" style="padding:0;font-size:12px;color:var(--sky);background:none;border:none;width:auto;cursor:none;">Full log →</button>
+          </div>
+          <div id="dashHours"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPPORTUNITIES PAGE -->
+    <div id="page-opportunities" style="display:none">
+      <div class="page-header">
+        <h1 class="greeting">Volunteer <em>Opportunities</em></h1>
+        <p class="subtext">Open sessions you can sign up for. Contact your coordinator to register.</p>
+      </div>
+      <div id="oppsList"><div class="loading">Loading opportunities…</div></div>
+    </div>
+
+    <!-- HOURS PAGE -->
+    <div id="page-hours" style="display:none">
+      <div class="page-header">
+        <h1 class="greeting">My <em>Hours</em></h1>
+        <p class="subtext">A record of all your verified volunteering hours.</p>
+      </div>
+      <div class="section-card">
+        <div id="fullHoursLog"><div class="loading">Loading hours log…</div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="page-profile" style="display:none">
+      <div class="page-header">
+        <h1 class="greeting">My <em>Profile</em></h1>
+        <p class="subtext">Your volunteer information on record.</p>
+      </div>
+      <div class="section-card" id="profileCard">
+        <div class="loading">Loading profile…</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ============================================================
+// SUPABASE SETUP — replace with your project details
+// ============================================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let currentUser = null;
+let volunteerData = null;
+
+// ============================================================
+// AUTH CHECK — redirect to login if not signed in
+// ============================================================
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'volunteer-login.html'; return; }
+  currentUser = session.user;
+
+  // If exec accidentally lands here, send them to admin panel
+  const { data: roleData } = await sb.from('volunteers').select('role').eq('email', currentUser.email).single();
+  if (roleData && roleData.role === 'exec') {
+    window.location.href = 'volunteer-admin.html';
+    return;
+  }
+
+  await loadVolunteerData();
+  await loadDashboard();
+}
+
+async function loadVolunteerData() {
+  const { data } = await sb.from('volunteers').select('*').eq('email', currentUser.email).single();
+  volunteerData = data;
+  if (data) {
+    document.getElementById('volunteerName').textContent = data.first_name;
+    document.getElementById('sidebarId').textContent = data.volunteer_id;
+  }
+  const now = new Date();
+  document.getElementById('dashboardDate').textContent =
+    now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ============================================================
+// LOAD DASHBOARD DATA
+// Reads from `hours` and `opportunities` tables
+// ============================================================
+async function loadDashboard() {
+  if (!volunteerData) return;
+
+  // Hours stats
+  const { data: hours } = await sb.from('hours')
+    .select('*')
+    .eq('volunteer_id', volunteerData.volunteer_id);
+
+  if (hours) {
+    const verified = hours.filter(h => h.status === 'verified');
+    const pending = hours.filter(h => h.status === 'pending');
+    const totalHrs = verified.reduce((sum, h) => sum + (h.hours || 0), 0);
+    document.getElementById('totalHours').textContent = totalHrs;
+    document.getElementById('sessionsCount').textContent = verified.length;
+    document.getElementById('pendingHours').textContent = pending.reduce((s, h) => s + (h.hours || 0), 0);
+
+    // Recent hours (sidebar)
+    const recentEl = document.getElementById('dashHours');
+    if (verified.length === 0) {
+      recentEl.innerHTML = '<div class="empty-state"><div class="empty-icon">◷</div>No hours logged yet.</div>';
+    } else {
+      recentEl.innerHTML = verified.slice(-4).reverse().map(h => `
+        <div class="log-item">
+          <div><div class="log-name">${h.session_name}</div><div class="log-date">${formatDate(h.date)}</div></div>
+          <div class="log-hrs">${h.hours}h</div>
+        </div>`).join('');
+    }
+  }
+
+  // Opportunities
+  const { data: opps } = await sb.from('opportunities').select('*').eq('status', 'open').order('date', { ascending: true }).limit(3);
+  const oppsEl = document.getElementById('dashOpps');
+  if (!opps || opps.length === 0) {
+    oppsEl.innerHTML = '<div class="empty-state"><div class="empty-icon">✦</div>No open opportunities right now. Check back soon!</div>';
+  } else {
+    oppsEl.innerHTML = opps.map(o => `
+      <div class="opp-item">
+        <div class="opp-dot ${o.type === 'art' ? 'green' : 'purple'}"></div>
+        <div>
+          <div class="opp-title">${o.title}</div>
+          <div class="opp-meta"><span>📅 ${formatDate(o.date)}</span><span>📍 ${o.location}</span></div>
+          <span class="opp-badge ${o.type === 'art' ? 'green' : ''}">${o.type}</span>
+        </div>
+      </div>`).join('');
+  }
+}
+
+async function loadOpportunities() {
+  const { data: opps } = await sb.from('opportunities').select('*').order('date', { ascending: true });
+  const el = document.getElementById('oppsList');
+  if (!opps || opps.length === 0) {
+    el.innerHTML = '<div class="section-card"><div class="empty-state"><div class="empty-icon">✦</div>No opportunities posted yet.</div></div>';
+    return;
+  }
+  el.innerHTML = opps.map(o => `
+    <div class="section-card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:6px">${o.title}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:12px;line-height:1.7">${o.description || ''}</div>
+          <div class="opp-meta"><span>📅 ${formatDate(o.date)}</span><span>📍 ${o.location}</span><span>⏱ ${o.hours}h</span></div>
+        </div>
+        <span class="opp-badge ${o.status === 'open' ? 'green' : ''}">${o.status}</span>
+      </div>
+    </div>`).join('');
+}
+
+async function loadFullHours() {
+  if (!volunteerData) return;
+  const { data: hours } = await sb.from('hours').select('*').eq('volunteer_id', volunteerData.volunteer_id).order('date', { ascending: false });
+  const el = document.getElementById('fullHoursLog');
+  if (!hours || hours.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">◷</div>No hours logged yet. Attend a session to get started!</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 80px 90px;gap:12px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:4px">
+      <span>Session</span><span>Hours</span><span>Status</span>
+    </div>` +
+    hours.map(h => `
+    <div style="display:grid;grid-template-columns:1fr 80px 90px;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:center">
+      <div>
+        <div style="font-size:14px;font-weight:500">${h.session_name}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35)">${formatDate(h.date)}</div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--yellow);font-weight:300">${h.hours}h</div>
+      <span class="opp-badge ${h.status === 'verified' ? 'green' : ''}">${h.status}</span>
+    </div>`).join('');
+}
+
+async function loadProfile() {
+  const el = document.getElementById('profileCard');
+  if (!volunteerData) { el.innerHTML = '<div class="loading">Could not load profile.</div>'; return; }
+  const v = volunteerData;
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid var(--glass-border)">
+      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--lilac));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600">${(v.first_name||'?')[0]}</div>
+      <div>
+        <div style="font-size:20px;font-weight:600">${v.first_name} ${v.last_name}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.4)">${v.volunteer_id}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      ${profileField('Email', v.email)}
+      ${profileField('Phone', v.phone || '—')}
+      ${profileField('School', v.school)}
+      ${profileField('Grade', v.grade)}
+      ${profileField('Board / Curriculum', v.board)}
+      ${profileField('City', v.city || '—')}
+      ${profileField('Member Since', formatDate(v.created_at))}
+      ${profileField('Status', '<span class="opp-badge green">Active</span>')}
+    </div>
+    <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--glass-border);font-size:12.5px;color:rgba(255,255,255,0.35)">
+      To update your information, contact your Lighthouse coordinator.
+    </div>`;
+}
+
+function profileField(label, value) {
+  return `<div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px">${label}</div><div style="font-size:14px">${value}</div></div>`;
+}
+
+// PAGE SWITCHER
+function showPage(page) {
+  ['dashboard','opportunities','hours','profile'].forEach(p => {
+    document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if (page === 'opportunities') loadOpportunities();
+  if (page === 'hours') loadFullHours();
+  if (page === 'profile') loadProfile();
+}
+
+async function handleSignOut() {
+  await sb.auth.signOut();
+  window.location.href = 'volunteer-login.html';
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Cursor
+const cursorEl = document.getElementById('cursor');
+cursorEl.innerHTML = '<svg viewBox="0 0 40 40"><path d="M20 2 L22.5 17.5 L38 20 L22.5 22.5 L20 38 L17.5 22.5 L2 20 L17.5 17.5 Z" fill="#ffe14d"/><circle cx="20" cy="20" r="3.5" fill="white" opacity="0.9"/></svg>';
+
+
+init();
+</script>
+<script>
+(function(){
+  var el = document.getElementById('cursor');
+  if (!el) return;
+  var mx = -200, my = -200, angle = 0;
+  document.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseleave', function(){ mx = -200; my = -200; });
+  function tick(){
+    angle = (angle + 1.5) % 360;
+    el.style.transform = 'translate(' + (mx-14) + 'px,' + (my-14) + 'px) rotate(' + angle + 'deg)';
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

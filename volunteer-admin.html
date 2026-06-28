@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Executive Panel — Lighthouse</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+(function() {
+  function initCursor() {
+    var el = document.getElementById('cursor');
+    if (!el) return;
+    var mx = -200, my = -200, angle = 0;
+    document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
+    document.addEventListener('mouseleave', function() { mx = -200; my = -200; });
+    function tick() {
+      angle = (angle + 1.5) % 360;
+      el.style.transform = 'translate(' + (mx - 14) + 'px,' + (my - 14) + 'px) rotate(' + angle + 'deg)';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCursor);
+  else initCursor();
+})();
+</script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --blue: #1a5cff; --sky: #4eb4ff; --yellow: #ffe14d;
+  --dark: #050e2e; --mid: #1c2b5e; --offwhite: #f4f8ff;
+  --coral: #ff6b5b; --mint: #3dffc0; --lilac: #c084fc;
+  --glass: rgba(255,255,255,0.05); --glass-border: rgba(78,180,255,0.12);
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: white; min-height: 100vh; cursor: none; }
+.cursor { width: 28px; height: 28px; position: fixed; top: 0; left: 0; transform: translate(-200px, -200px); pointer-events: none; z-index: 9999; will-change: transform; filter: drop-shadow(0 0 6px #ffe14d); } * { cursor: none !important; }
+.cursor svg { width: 100%; height: 100%; }
+
+/* LAYOUT */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 240px; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; background: rgba(5,14,46,0.98); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 32px 0; z-index: 50; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(78,180,255,0.2) transparent; }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 24px 28px; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; text-decoration: none; color: white; border-bottom: 1px solid var(--glass-border); margin-bottom: 24px; }
+.sidebar-logo svg { width: 18px; height: 24px; }
+.exec-badge { margin: 0 24px 20px; padding: 8px 14px; background: rgba(255,225,77,0.1); border: 1px solid rgba(255,225,77,0.2); border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--yellow); }
+.nav-section { padding: 0 14px; margin-bottom: 8px; }
+.nav-section-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 0 10px; margin-bottom: 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.5); cursor: none; border: none; background: none; width: 100%; transition: all 0.18s; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+.nav-item.active { background: rgba(255,225,77,0.12); color: var(--yellow); }
+.nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid var(--glass-border); }
+.btn-signout { width: 100%; padding: 10px; border-radius: 10px; background: rgba(255,107,91,0.1); border: 1px solid rgba(255,107,91,0.2); color: #ff9b8f; font-size: 12.5px; font-weight: 600; cursor: none; transition: all 0.2s; }
+.btn-signout:hover { background: rgba(255,107,91,0.2); }
+
+/* MAIN */
+.main-content { margin-left: 240px; flex: 1; padding: 48px; }
+.page-header { margin-bottom: 36px; }
+.page-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 300; }
+.page-header h1 em { font-style: italic; color: var(--yellow); }
+.page-header p { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 22px; }
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+.stat-value { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; }
+.c-blue { color: var(--sky); } .c-yellow { color: var(--yellow); } .c-mint { color: var(--mint); } .c-coral { color: #ff9b8f; }
+
+/* TABLE */
+.table-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; }
+.table-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid var(--glass-border); }
+.table-head h3 { font-size: 14px; font-weight: 600; }
+.search-bar { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(78,180,255,0.15); border-radius: 10px; padding: 8px 14px; }
+.search-bar input { background: none; border: none; color: white; font-family: 'DM Sans',sans-serif; font-size: 13px; outline: none; width: 200px; }
+.search-bar input::placeholder { color: rgba(255,255,255,0.25); }
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 12px 20px; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); border-bottom: 1px solid rgba(255,255,255,0.06); }
+.data-table td { padding: 14px 20px; font-size: 13.5px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,0.03); }
+.vol-name { font-weight: 500; }
+.vol-id { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px; }
+
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.status-pending { background: rgba(255,225,77,0.12); color: var(--yellow); }
+.status-accepted { background: rgba(61,255,192,0.1); color: var(--mint); }
+.status-rejected { background: rgba(255,107,91,0.1); color: #ff9b8f; }
+
+.action-row { display: flex; gap: 8px; }
+.btn-sm { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; border: none; cursor: none; transition: all 0.18s; }
+.btn-accept { background: rgba(61,255,192,0.12); color: var(--mint); border: 1px solid rgba(61,255,192,0.2); }
+.btn-accept:hover { background: rgba(61,255,192,0.22); }
+.btn-reject { background: rgba(255,107,91,0.1); color: #ff9b8f; border: 1px solid rgba(255,107,91,0.2); }
+.btn-reject:hover { background: rgba(255,107,91,0.2); }
+.btn-view { background: rgba(78,180,255,0.1); color: var(--sky); border: 1px solid rgba(78,180,255,0.2); }
+.btn-view:hover { background: rgba(78,180,255,0.2); }
+.btn-hours { background: rgba(255,225,77,0.1); color: var(--yellow); border: 1px solid rgba(255,225,77,0.2); }
+.btn-hours:hover { background: rgba(255,225,77,0.2); }
+
+.empty-state { text-align: center; padding: 48px; color: rgba(255,255,255,0.3); font-size: 13px; }
+.loading { padding: 40px; text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+.modal-overlay.show { display: flex; }
+.modal { background: #0a1540; border: 1px solid var(--glass-border); border-radius: 20px; width: 100%; max-width: 540px; padding: 36px; position: relative; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; margin-bottom: 20px; }
+.modal h3 em { font-style: italic; color: var(--yellow); }
+.modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 18px; cursor: none; }
+.modal-close:hover { color: white; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.info-item label { font-size: 10.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.35); display: block; margin-bottom: 4px; }
+.info-item span { font-size: 13.5px; }
+.statement-box { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; font-size: 13.5px; color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.08); }
+
+/* ADD HOURS FORM */
+.form-field { margin-bottom: 16px; }
+.form-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 7px; }
+.form-field input, .form-field select { width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(78,180,255,0.15); border-radius: 10px; color: white; font-family: 'DM Sans',sans-serif; font-size: 13.5px; outline: none; transition: border-color 0.2s; }
+.form-field input:focus, .form-field select:focus { border-color: var(--blue); }
+.form-field input::placeholder { color: rgba(255,255,255,0.25); }
+.form-field select option { background: var(--dark); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-primary { width: 100%; padding: 13px; border-radius: 11px; background: var(--blue); color: white; font-size: 13.5px; font-weight: 600; border: none; cursor: none; transition: all 0.2s; box-shadow: 0 6px 20px rgba(26,92,255,0.35); }
+.btn-primary:hover { background: #2d6fff; }
+.alert-sm { padding: 10px 14px; border-radius: 10px; font-size: 12.5px; margin-bottom: 14px; display: none; }
+.alert-sm.success { background: rgba(61,255,192,0.1); border: 1px solid rgba(61,255,192,0.2); color: var(--mint); }
+.alert-sm.error { background: rgba(255,107,91,0.12); border: 1px solid rgba(255,107,91,0.2); color: #ff9b8f; }
+.alert-sm.show { display: block; }
+
+/* TAB TOGGLE */
+.filter-tabs { display: flex; gap: 8px; }
+.ftab { padding: 7px 16px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: none; border: 1.5px solid rgba(78,180,255,0.15); background: transparent; color: rgba(255,255,255,0.4); transition: all 0.2s; }
+.ftab.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+@media (max-width: 900px) { .sidebar { display:none; } .main-content { margin-left:0; padding:24px 16px; } .stats-row { grid-template-columns:1fr 1fr; } }
+
+/* ═══════════════════════════════════
+   MOBILE RESPONSIVE — max 768px
+═══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* NAV */
+  nav { padding: 14px 20px !important; }
+  .nav-logo { font-size: 20px !important; }
+  .nav-cta { padding: 8px 14px !important; font-size: 12px !important; }
+  .nav-links { display: none !important; }
+
+  /* HERO */
+  .hero { padding: 110px 20px 70px !important; }
+  .hero-title { font-size: clamp(38px, 10vw, 56px) !important; }
+  .hero-sub { font-size: 14px !important; }
+  .hero-btns { flex-direction: column !important; gap: 12px !important; }
+  .hero-btns a { width: 100% !important; text-align: center !important; justify-content: center !important; }
+  .hero-content { max-width: 100% !important; }
+
+  /* SECTIONS general */
+  .impact, .what, .how, .team, .gallery-section, .join,
+  .partners-section { padding: 60px 20px !important; }
+  .impact > *, .what > *, .how > *, .team > *, .join > * { padding-left: 0 !important; padding-right: 0 !important; }
+
+  /* IMPACT grid */
+  .impact-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .impact-nums { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+  .icard { padding: 22px 18px !important; }
+  .icard .big-n { font-size: 36px !important; }
+
+  /* WHAT WE DO */
+  .what-grid { grid-template-columns: 1fr !important; gap: 16px !important; margin-top: 36px !important; }
+
+  /* HOW */
+  .steps { grid-template-columns: 1fr !important; border-radius: 16px !important; }
+  .step-line { display: none !important; }
+  .step { padding: 28px 22px !important; }
+
+  /* TEAM */
+  .team-grid { grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+
+  /* GALLERY carousel */
+  .gallery-section { padding: 60px 20px !important; }
+  .carousel-slide { flex: 0 0 85% !important; }
+
+  /* PARTNERS */
+  .partners-section .section-tag,
+  .partners-section h2,
+  .partners-section p { padding-left: 20px !important; }
+
+  /* JOIN */
+  .join { padding: 70px 20px !important; }
+  .join h2 { font-size: clamp(34px, 9vw, 52px) !important; }
+  .join-btns { flex-direction: column !important; align-items: center !important; }
+  .btn-white, .btn-outline-white { width: 100% !important; justify-content: center !important; text-align: center !important; }
+
+  /* SECTION titles */
+  .sec-title { font-size: clamp(32px, 8vw, 48px) !important; }
+
+  /* FOOTER */
+  .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .ocean-floor { padding: 48px 20px 32px !important; }
+
+  /* EXPLORE / CHOICE CARDS */
+  .choices { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .choice-card { padding: 34px 26px !important; }
+  main { padding: 100px 16px 60px !important; }
+  .page-title { font-size: clamp(36px, 9vw, 56px) !important; }
+  .page-sub { font-size: 14px !important; }
+
+  /* FORM PAGES */
+  .page-wrap { padding: 90px 16px 60px !important; max-width: 100% !important; }
+  .form-card { padding: 22px 16px !important; }
+  .field-row { grid-template-columns: 1fr !important; }
+  .subjects-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .steps-bar { gap: 4px !important; }
+  .step-ind { font-size: 10px !important; gap: 6px !important; }
+  .step-line { max-width: 20px !important; }
+
+  /* LOGIN */
+  .portal-card { padding: 28px 18px !important; }
+
+  /* GALLERY page */
+  .gallery-hero { padding: 110px 20px 44px !important; }
+  .filter-bar { padding: 24px 16px 0 !important; flex-wrap: wrap !important; }
+  .gallery-grid { padding: 24px 16px 60px !important; grid-template-columns: 1fr 1fr !important; }
+  .gallery-item.tall { grid-row: span 1 !important; min-height: 200px !important; }
+
+  /* SIDEBAR ADMIN/DASHBOARD */
+  .sidebar { display: none !important; }
+  .main-content { margin-left: 0 !important; padding: 24px 16px 60px !important; }
+  .stats-row { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+  .content-grid { grid-template-columns: 1fr !important; }
+  .data-table { font-size: 12px !important; }
+  .data-table th, .data-table td { padding: 10px 12px !important; }
+  .action-row { flex-wrap: wrap !important; gap: 6px !important; }
+}
+
+@media (max-width: 420px) {
+  .gallery-grid { grid-template-columns: 1fr !important; }
+  .team-grid { grid-template-columns: 1fr !important; }
+  .impact-nums { grid-template-columns: 1fr !important; }
+  .subjects-grid { grid-template-columns: 1fr 1fr !important; }
+  .info-grid { grid-template-columns: 1fr !important; }
+}
+
+</style>
+</head>
+<body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(255,225,77,0.95);color:#050e2e;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:DM Sans,sans-serif;">
+  ✦ Demo version — Supabase backend not connected. For the live site visit: <a href="https://lighthouseinitiative.pages.dev" style="color:#1a5cff;text-decoration:underline;" target="_blank">lighthouseinitiative.pages.dev</a>
+</div>
+<div style="height:40px"></div>
+<div class="cursor" id="cursor">
+  <svg viewBox="0 0 40 40"><path d="M20 2 L22.5 17.5 L38 20 L22.5 22.5 L20 38 L17.5 22.5 L2 20 L17.5 17.5 Z" fill="#ffe14d"/><circle cx="20" cy="20" r="3.5" fill="white" opacity="0.9"/></svg>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg viewBox="0 0 22 32" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="27" width="12" height="4" rx="1.5" fill="#c8b070"/>
+        <polygon points="7,27 15,27 13.5,10 8.5,10" fill="#e8dfc8"/>
+        <polygon points="7.2,22 14.8,22 14.4,18 7.6,18" fill="#d43030" opacity="0.9"/>
+        <circle cx="11" cy="8.5" r="2.2" fill="#ffe57d" opacity="0.95"/>
+        <circle cx="11" cy="8.5" r="1.2" fill="white"/>
+      </svg>
+      Lighthouse
+    </a>
+    <div class="exec-badge">⬡ Executive Panel</div>
+    <div class="nav-section">
+      <div class="nav-section-label">Manage</div>
+      <button class="nav-item active" onclick="showPage('applications')"><span class="icon">📋</span> Applications</button>
+      <button class="nav-item" onclick="showPage('volunteers')"><span class="icon">◎</span> Volunteers</button>
+      <button class="nav-item" onclick="showPage('ambassadors')"><span class="icon">🌟</span> Ambassadors</button>
+      <button class="nav-item" onclick="showPage('hours')"><span class="icon">◷</span> Log Hours</button>
+      <button class="nav-item" onclick="showPage('opportunities')"><span class="icon">✦</span> Opportunities</button>
+      <button class="nav-item" onclick="showPage('archive')"><span class="icon">◈</span> Archive</button>
+      <button class="nav-item" onclick="showPage('tutor-requests')"><span class="icon">📚</span> Tutor Requests</button>
+      <button class="nav-item" onclick="showPage('reset-requests')"><span class="icon">🔑</span> Reset Requests</button>
+      <button class="nav-item" onclick="showPage('gallery')"><span class="icon">🖼</span> Gallery</button>
+      <button class="nav-item" onclick="showPage('updates')"><span class="icon">📢</span> Updates</button>
+      <button class="nav-item" onclick="showPage('settings')"><span class="icon">⚙</span> Settings</button>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-signout" onclick="handleSignOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- APPLICATIONS PAGE -->
+    <div id="page-applications">
+      <div class="page-header">
+        <h1><em>Applications</em></h1>
+        <p>Review and action applications.</p>
+      </div>
+      <!-- Toggle between volunteer and ambassador applications -->
+      <div style="display:flex;gap:12px;margin-bottom:28px;">
+        <button id="appTypeVolBtn" onclick="switchAppType('volunteer')" style="padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;border:none;background:var(--blue);color:white;cursor:none;transition:all 0.2s;box-shadow:0 4px 16px rgba(26,92,255,0.3)">Volunteer Applications</button>
+        <button id="appTypeAmbaBtn" onclick="switchAppType('ambassador')" style="padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;border:1.5px solid rgba(192,132,252,0.3);background:transparent;color:rgba(192,132,252,0.7);cursor:none;transition:all 0.2s;">Ambassador Applications</button>
+      </div>
+
+      <!-- VOLUNTEER APPS -->
+      <div id="volAppsSection">
+      <div class="stats-row" id="appStats">
+        <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value c-blue" id="statTotal">—</div></div>
+        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value c-yellow" id="statPending">—</div></div>
+        <div class="stat-card"><div class="stat-label">Accepted</div><div class="stat-value c-mint" id="statAccepted">—</div></div>
+        <div class="stat-card"><div class="stat-label">Rejected</div><div class="stat-value c-coral" id="statRejected">—</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-head">
+          <h3>Applications</h3>
+          <div class="filter-tabs">
+            <button class="ftab active" onclick="filterApps('all')">All</button>
+            <button class="ftab" onclick="filterApps('pending')">Pending</button>
+            <button class="ftab" onclick="filterApps('accepted')">Accepted</button>
+            <button class="ftab" onclick="filterApps('rejected')">Rejected</button>
+          </div>
+        </div>
+        <div id="appsTableWrap"><div class="loading">Loading applications…</div></div>
+      </div>
+      </div><!-- end volAppsSection -->
+
+      <!-- AMBASSADOR APPS SECTION -->
+      <div id="ambaAppsSection" style="display:none">
+        <div class="table-card">
+          <div class="table-head">
+            <h3>Ambassador Applications</h3>
+            <div class="filter-tabs">
+              <button class="ftab active" onclick="filterAmbaApps('all')">All</button>
+              <button class="ftab" onclick="filterAmbaApps('pending')">Pending</button>
+              <button class="ftab" onclick="filterAmbaApps('accepted')">Accepted</button>
+              <button class="ftab" onclick="filterAmbaApps('rejected')">Rejected</button>
+            </div>
+          </div>
+          <div id="ambaAppsWrap"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div><!-- end page-applications -->
+
+    <!-- VOLUNTEERS PAGE -->
+    <div id="page-volunteers" style="display:none">
+      <div class="page-header">
+        <h1><em>Active</em> Volunteers</h1>
+        <p>All accepted volunteers with their IDs and hour totals.</p>
+      </div>
+      <div class="table-card">
+        <div class="table-head">
+          <h3>Volunteers</h3>
+          <div class="search-bar"><span>🔍</span><input type="text" id="volSearch" placeholder="Search by name or ID…" oninput="filterVolunteers(this.value)"></div>
+        </div>
+        <div id="volsTableWrap"><div class="loading">Loading volunteers…</div></div>
+      </div>
+    </div>
+
+    <!-- HOURS PAGE -->
+    <div id="page-hours" style="display:none">
+      <div class="page-header">
+        <h1>Log <em>Hours</em></h1>
+        <p>Add volunteering hours for any active volunteer.</p>
+      </div>
+      <div style="max-width:520px;margin-bottom:32px">
+        <div class="table-card" style="padding:28px;border-radius:20px">
+          <div class="alert-sm success" id="hoursSuccess"></div>
+          <div class="alert-sm error" id="hoursError"></div>
+          <div class="form-field">
+            <label>Volunteer ID</label>
+            <input type="text" id="hVolId" placeholder="e.g. LH-2026-0042">
+          </div>
+          <div class="form-field">
+            <label>Session Name</label>
+            <input type="text" id="hSession" placeholder="e.g. Art Workshop – Al-Rashidiya School">
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label>Hours</label>
+              <input type="number" id="hHours" placeholder="3" min="0.5" step="0.5">
+            </div>
+            <div class="form-field">
+              <label>Date</label>
+              <input type="date" id="hDate">
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Status</label>
+            <select id="hStatus">
+              <option value="verified">Verified ✓</option>
+              <option value="pending">Pending (awaiting review)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Notes (optional)</label>
+            <input type="text" id="hNotes" placeholder="Any additional info…">
+          </div>
+          <button class="btn-primary" onclick="logHours()">Log Hours →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPPORTUNITIES PAGE -->
+    <div id="page-opportunities" style="display:none">
+      <div class="page-header">
+        <h1>Post <em>Opportunities</em></h1>
+        <p>Add volunteering sessions that volunteers can see in their dashboard.</p>
+      </div>
+      <div style="max-width:520px;margin-bottom:32px">
+        <div class="table-card" style="padding:28px;border-radius:20px">
+          <div class="alert-sm success" id="oppSuccess"></div>
+          <div class="alert-sm error" id="oppError"></div>
+          <div class="form-field"><label>Title</label><input type="text" id="oTitle" placeholder="Art Workshop – School Name"></div>
+          <div class="form-field"><label>Description</label><input type="text" id="oDesc" placeholder="Brief description of the session"></div>
+          <div class="form-row">
+            <div class="form-field"><label>Date</label><input type="date" id="oDate"></div>
+            <div class="form-field"><label>Hours</label><input type="number" id="oHours" placeholder="3" min="0.5" step="0.5"></div>
+          </div>
+          <div class="form-field"><label>Location</label><input type="text" id="oLocation" placeholder="School / venue name"></div>
+          <div class="form-field">
+            <label>Type</label>
+            <select id="oType" onchange="document.getElementById('oTypeCustomWrap').style.display=this.value==='other'?'block':'none'">
+              <option value="session">Session</option>
+              <option value="workshop">Workshop</option>
+              <option value="event">Event</option>
+              <option value="other">Other (specify below)</option>
+            </select>
+          </div>
+          <div class="form-field" id="oTypeCustomWrap" style="display:none">
+            <label>Custom Type</label>
+            <input type="text" id="oTypeCustom" placeholder="e.g. Books Delivery, Mentorship…">
+          </div>
+          <button class="btn-primary" onclick="postOpportunity()">Post Opportunity →</button>
+        </div>
+      </div>
+
+      <!-- EXISTING OPPORTUNITIES LIST -->
+      <div class="table-card" style="margin-top:32px">
+        <div class="table-head">
+          <h3>Posted Opportunities</h3>
+          <button onclick="loadPostedOpps()" style="background:none;border:none;color:var(--sky);font-size:12px;font-weight:600;cursor:none;">↻ Refresh</button>
+        </div>
+        <div id="postedOppsList"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+
+    <!-- ARCHIVE PAGE -->
+    <div id="page-archive" style="display:none">
+      <div class="page-header">
+        <h1><em>Archive</em></h1>
+        <p>A full historical record of all activity on Lighthouse.</p>
+      </div>
+
+      <!-- Subtabs -->
+      <div class="tab-row" style="max-width:340px;margin-bottom:28px">
+        <button class="tab active" id="archiveTab1" onclick="switchArchiveTab('hours')">Hours Log</button>
+        <button class="tab" id="archiveTab2" onclick="switchArchiveTab('opportunities')">Opportunities</button>
+      </div>
+
+      <!-- Hours Log -->
+      <div id="archiveHours">
+        <div class="table-card">
+          <div class="table-head">
+            <h3>All Hours Logged</h3>
+            <div id="archiveTotalBadge" style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--yellow);font-weight:300"></div>
+          </div>
+          <div id="archiveHoursList"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+
+      <!-- Opportunities Archive -->
+      <div id="archiveOpps" style="display:none">
+        <div class="table-card">
+          <div class="table-head"><h3>All Opportunities</h3></div>
+          <div id="archiveOppsList"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!-- AMBASSADORS PAGE -->
+    <div id="page-ambassadors" style="display:none">
+      <div class="page-header">
+        <h1><em>Ambassadors</em></h1>
+        <p>All active Lighthouse Ambassadors and their contributions.</p>
+      </div>
+      <div class="table-card">
+        <div class="table-head"><h3>Active Ambassadors</h3></div>
+        <div id="ambasListWrap"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- AMBASSADOR DETAIL PAGE -->
+    <div id="page-ambassador-detail" style="display:none">
+      <div class="page-header">
+        <button onclick="showPage('ambassadors')" style="background:none;border:none;color:var(--sky);font-size:13px;font-weight:600;cursor:none;margin-bottom:16px;display:block;">← Back to Ambassadors</button>
+        <h1><em id="detailAmbaName">Ambassador</em></h1>
+        <p id="detailAmbaInfo" style="color:rgba(255,255,255,0.4);margin-top:4px;"></p>
+      </div>
+
+      <!-- Log Contribution -->
+      <div class="table-card" style="padding:28px;border-radius:20px;margin-bottom:24px;max-width:540px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:18px;color:var(--lilac)">+ Log Contribution</div>
+        <div class="alert-sm success" id="contribSuccess"></div>
+        <div class="alert-sm error" id="contribError"></div>
+        <div class="form-field"><label>Title / Action</label><input type="text" id="cTitle" placeholder="e.g. Ran a book donation drive, Presented at assembly…"></div>
+        <div class="form-field"><label>Description (optional)</label><input type="text" id="cDesc" placeholder="Any additional details…"></div>
+        <div class="form-field">
+          <label>Type</label>
+          <select id="cType">
+            <option value="initiative">Initiative</option>
+            <option value="donation drive">Donation Drive</option>
+            <option value="recruitment">Recruitment</option>
+            <option value="partnership">Partnership Effort</option>
+            <option value="social media">Social Media</option>
+            <option value="event">Event</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Date</label><input type="date" id="cDate"></div>
+        <button class="btn-primary" onclick="logContribution()">Log Contribution →</button>
+      </div>
+
+      <!-- Contributions list -->
+      <div class="table-card" style="border-radius:20px">
+        <div class="table-head"><h3>Contributions & Initiatives</h3></div>
+        <div id="detailContribsList"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- RESET REQUESTS PAGE -->
+    <div id="page-reset-requests" style="display:none">
+      <div class="page-header">
+        <h1><em>Reset</em> Requests</h1>
+        <p>Volunteers and ambassadors who have requested a password reset.</p>
+      </div>
+      <div class="table-card">
+        <div class="table-head">
+          <h3>Pending Requests</h3>
+          <button onclick="loadResetRequests()" style="background:none;border:none;color:var(--sky);font-size:12px;font-weight:600;cursor:none;">↻ Refresh</button>
+        </div>
+        <div id="resetReqList"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- TUTOR REQUESTS PAGE -->
+    <div id="page-tutor-requests" style="display:none">
+      <div class="page-header">
+        <h1><em>Tutor Requests</em></h1>
+        <p>Students who have signed up requesting a tutor.</p>
+      </div>
+      <div class="table-card">
+        <div class="table-head"><h3>All Requests</h3></div>
+        <div id="tutorReqList"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- GALLERY MANAGEMENT PAGE -->
+    <div id="page-gallery" style="display:none">
+      <div class="page-header">
+        <h1><em>Gallery</em></h1>
+        <p>Upload and manage photos that appear on the gallery page.</p>
+      </div>
+      <div style="max-width:560px">
+        <div class="table-card" style="padding:28px;border-radius:20px;margin-bottom:24px">
+          <div class="alert-sm success" id="gallerySuccess"></div>
+          <div class="alert-sm error" id="galleryError"></div>
+          <div class="form-field"><label>Image URL</label><input type="text" id="gImageUrl" placeholder="https://... or paste a Supabase storage URL"></div>
+          <div class="form-field"><label>Caption</label><input type="text" id="gCaption" placeholder="e.g. Art session at Al Muna, June 2026"></div>
+          <div class="form-field">
+            <label>Category</label>
+            <select id="gCategory">
+              <option value="all">All</option>
+              <option value="sessions">Sessions</option>
+              <option value="team">Team</option>
+              <option value="events">Events</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="addGalleryPhoto()">Add Photo →</button>
+        </div>
+        <div class="table-card" style="border-radius:20px">
+          <div class="table-head"><h3>Current Photos</h3></div>
+          <div id="galleryList"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPDATES / NEWSLETTER PAGE -->
+    <div id="page-updates" style="display:none">
+      <div class="page-header">
+        <h1><em>Updates</em></h1>
+        <p>Post updates that appear on the homepage for visitors to see.</p>
+      </div>
+      <div style="max-width:560px">
+        <div class="table-card" style="padding:28px;border-radius:20px;margin-bottom:24px">
+          <div class="alert-sm success" id="updateSuccess"></div>
+          <div class="alert-sm error" id="updateError"></div>
+          <div class="form-field"><label>Title</label><input type="text" id="uTitle" placeholder="e.g. First tutoring session complete!"></div>
+          <div class="form-field"><label>Body</label><textarea id="uBody" rows="4" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(78,180,255,0.15);border-radius:10px;color:white;font-family:DM Sans,sans-serif;font-size:13.5px;outline:none;resize:none;" placeholder="Share what Lighthouse has been up to…"></textarea></div>
+          <button class="btn-primary" onclick="postUpdate()">Post Update →</button>
+        </div>
+        <div class="table-card" style="border-radius:20px">
+          <div class="table-head"><h3>Posted Updates</h3></div>
+          <div id="updatesList"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" style="display:none">
+      <div class="page-header">
+        <h1><em>Site Settings</em></h1>
+        <p>Edit the stats shown on the homepage. Changes go live instantly.</p>
+      </div>
+      <div style="max-width:480px">
+        <div class="table-card" style="padding:32px;border-radius:20px">
+          <div class="alert-sm success" id="settingsSuccess"></div>
+          <div class="alert-sm error" id="settingsError"></div>
+          <div class="form-field"><label>Schools Partnered</label><input type="text" id="stat_schools" placeholder="e.g. 3"></div>
+          <div class="form-field"><label>Books Donated</label><input type="text" id="stat_books" placeholder="e.g. 20+"></div>
+          <div class="form-field"><label>Children Tutored</label><input type="text" id="stat_children" placeholder="e.g. 2"></div>
+          <div class="form-field"><label>Orphanages Partnered</label><input type="text" id="stat_orphanages" placeholder="e.g. 1"></div>
+          <button class="btn-primary" onclick="saveSettings()">Save & Publish →</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+
+<!-- AMBASSADOR APP MODAL -->
+<div class="modal-overlay" id="ambaAppModal">
+  <div class="modal" style="max-width:640px">
+    <button class="modal-close" onclick="closeAmbaModal()">✕</button>
+    <h3>Ambassador <em>Application</em></h3>
+    <div class="info-grid" id="ambaModalInfo"></div>
+    <div class="statement-box" id="ambaModalAnswers" style="max-height:400px;overflow-y:auto;"></div>
+    <div class="action-row" id="ambaModalActions" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- TUTOR REQUEST DETAIL MODAL -->
+<div class="modal-overlay" id="tutorModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTutorModal()">✕</button>
+    <h3>Tutor <em>Request</em></h3>
+    <div class="info-grid" id="tutorModalInfo"></div>
+    <div class="statement-box" id="tutorModalNotes"></div>
+  </div>
+</div>
+<!-- APPLICATION DETAIL MODAL -->
+<div class="modal-overlay" id="appModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Application <em>Review</em></h3>
+    <div class="info-grid" id="modalInfo"></div>
+    <div class="statement-box" id="modalStatement"></div>
+    <div class="action-row" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let allApps = [], allVols = [];
+let currentAppFilter = 'all';
+
+// ============================================================
+// AUTH CHECK — only executives (role = 'exec') can access
+// ============================================================
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'volunteer-login.html'; return; }
+
+  // Check executive role in volunteers table
+  const { data: vol } = await sb.from('volunteers').select('role').eq('email', session.user.email).single();
+  if (!vol || vol.role !== 'exec') {
+    // Silently redirect volunteers to their own dashboard
+    window.location.href = 'volunteer-dashboard.html';
+    return;
+  }
+  await loadApplications();
+}
+
+// ============================================================
+// APPLICATIONS
+// ============================================================
+async function loadApplications() {
+  const { data } = await sb.from('applications').select('*').order('applied_at', { ascending: false });
+  allApps = data || [];
+  document.getElementById('statTotal').textContent = allApps.length;
+  document.getElementById('statPending').textContent = allApps.filter(a => a.status === 'pending').length;
+  document.getElementById('statAccepted').textContent = allApps.filter(a => a.status === 'accepted').length;
+  document.getElementById('statRejected').textContent = allApps.filter(a => a.status === 'rejected').length;
+  renderAppsTable(allApps);
+}
+
+function filterApps(status) {
+  currentAppFilter = status;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const filtered = status === 'all' ? allApps : allApps.filter(a => a.status === status);
+  renderAppsTable(filtered);
+}
+
+function renderAppsTable(apps) {
+  const wrap = document.getElementById('appsTableWrap');
+  if (!apps.length) { wrap.innerHTML = '<div class="empty-state">No applications found.</div>'; return; }
+  wrap.innerHTML = `<table class="data-table">
+    <thead><tr>
+      <th>Applicant</th><th>School</th><th>Grade</th><th>Applied</th><th>Status</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${apps.map(a => `<tr>
+      <td><div class="vol-name">${a.first_name} ${a.last_name}</div><div class="vol-id">${a.email}</div></td>
+      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${a.school}</td>
+      <td style="font-size:13px">${a.grade || '—'}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(a.applied_at)}</td>
+      <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+      <td><div class="action-row">
+        <button class="btn-sm btn-view" onclick="viewApp('${a.id}')">View</button>
+        ${a.status === 'pending' ? `
+          <button class="btn-sm btn-accept" onclick="actionApp('${a.id}','accepted')">Accept</button>
+          <button class="btn-sm btn-reject" onclick="actionApp('${a.id}','rejected')">Reject</button>` : ''}
+      </div></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function viewApp(id) {
+  const a = allApps.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modalInfo').innerHTML = [
+    ['Name', `${a.first_name} ${a.last_name}`],
+    ['Email', a.email], ['Phone', a.phone || '—'],
+    ['School', a.school], ['Grade', a.grade], ['Board', a.board],
+    ['City', a.city || '—'], ['Referred by', a.referral || '—'],
+    ['Applied', fmtDate(a.applied_at)], ['Status', `<span class="status-badge status-${a.status}">${a.status}</span>`]
+  ].map(([l, v]) => `<div class="info-item"><label>${l}</label><span>${v}</span></div>`).join('');
+
+  const rcUrl = a.report_card_url
+    ? 'YOUR_SUPABASE_URL/storage/v1/object/public/applications/' + a.report_card_url
+    : null;
+
+  document.getElementById('modalStatement').innerHTML =
+    '<strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:8px">Personal Statement</strong>' +
+    (a.statement || 'No statement provided.') +
+    (a.skills ? '<br><br><strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-top:10px;margin-bottom:6px">Skills</strong>' + a.skills : '') +
+    (rcUrl
+      ? '<br><br><strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-top:12px;margin-bottom:8px">Report Card</strong>' +
+        '<a href="' + rcUrl + '" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(78,180,255,0.12);border:1px solid rgba(78,180,255,0.25);border-radius:10px;color:#4eb4ff;text-decoration:none;font-size:13px;font-weight:600;">📄 View Report Card →</a>'
+      : '<br><br><em style="font-size:12px;color:rgba(255,255,255,0.3)">No report card uploaded.</em>');
+
+  document.getElementById('modalActions').innerHTML = a.status === 'pending' ? `
+    <button class="btn-primary" style="background:rgba(61,255,192,0.15);color:var(--mint);border:1px solid rgba(61,255,192,0.25);box-shadow:none" onclick="actionApp('${a.id}','accepted');closeModal()">✓ Accept</button>
+    <button class="btn-primary" style="background:rgba(255,107,91,0.1);color:#ff9b8f;border:1px solid rgba(255,107,91,0.2);box-shadow:none;margin-left:10px" onclick="actionApp('${a.id}','rejected');closeModal()">✕ Reject</button>` : '';
+  document.getElementById('appModal').classList.add('show');
+}
+
+// ============================================================
+// ACCEPT / REJECT APPLICATION
+// On accept: creates a volunteer account in Supabase Auth,
+// generates a Volunteer ID, inserts into `volunteers` table,
+// and triggers a password setup email.
+// ============================================================
+async function actionApp(id, action) {
+  const a = allApps.find(x => x.id === id);
+  if (!a) return;
+
+  if (action === 'accepted') {
+    // Generate volunteer ID: LH-YEAR-XXXX
+    const year = new Date().getFullYear();
+    const seq = String(allApps.filter(x => x.status === 'accepted').length + 1).padStart(4, '0');
+    const volunteerId = `LH-${year}-${seq}`;
+
+    // Insert into volunteers table
+    const { error: insertErr } = await sb.from('volunteers').insert({
+      volunteer_id: volunteerId,
+      first_name: a.first_name, last_name: a.last_name,
+      email: a.email, phone: a.phone,
+      school: a.school, grade: a.grade, board: a.board,
+      city: a.city || null, country: a.country || null,
+      role: 'volunteer',
+      created_at: new Date().toISOString()
+    });
+
+    if (insertErr) {
+      alert('Error adding to volunteers table: ' + insertErr.message + '\n\nPlease add them manually in Supabase → Table Editor → volunteers');
+      // Still update the application status even if insert fails
+    }
+
+    // Update application status to accepted
+    await sb.from('applications').update({ status: 'accepted' }).eq('id', id);
+    await loadApplications();
+
+    // Show the exec what to do next
+    alert(
+      '✓ Accepted!\n\n' +
+      'Volunteer ID: ' + volunteerId + '\n' +
+      'Name: ' + a.first_name + ' ' + a.last_name + '\n' +
+      'Email: ' + a.email + '\n\n' +
+      'Next step:\n' +
+      '1. Go to Supabase → Authentication → Users → Add User\n' +
+      '2. Enter their email: ' + a.email + '\n' +
+      '3. Set a temporary password\n' +
+      '4. Send them their Volunteer ID (' + volunteerId + ') and temp password via WhatsApp/email'
+    );
+    return;
+  }
+
+  // Rejected
+  await sb.from('applications').update({ status: action }).eq('id', id);
+  await loadApplications();
+}
+
+// ============================================================
+// VOLUNTEERS TABLE
+// ============================================================
+async function loadVolunteers() {
+  const { data } = await sb.from('volunteers').select('*, hours(hours, status)').eq('role', 'volunteer').order('created_at', { ascending: false });
+  allVols = data || [];
+  renderVolsTable(allVols);
+}
+
+function filterVolunteers(q) {
+  const filtered = allVols.filter(v =>
+    `${v.first_name} ${v.last_name} ${v.volunteer_id}`.toLowerCase().includes(q.toLowerCase()));
+  renderVolsTable(filtered);
+}
+
+function renderVolsTable(vols) {
+  const wrap = document.getElementById('volsTableWrap');
+  if (!vols.length) { wrap.innerHTML = '<div class="empty-state">No volunteers found.</div>'; return; }
+  wrap.innerHTML = `<table class="data-table">
+    <thead><tr><th>Volunteer</th><th>School</th><th>Grade</th><th>Total Hours</th><th>Actions</th></tr></thead>
+    <tbody>${vols.map(v => {
+      const hrs = (v.hours || []).filter(h => h.status === 'verified').reduce((s, h) => s + h.hours, 0);
+      return `<tr>
+        <td><div class="vol-name">${v.first_name} ${v.last_name}</div><div class="vol-id">${v.volunteer_id}</div></td>
+        <td style="font-size:13px;color:rgba(255,255,255,0.6)">${v.school}</td>
+        <td>${v.grade || '—'}</td>
+        <td style="font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--yellow)">${hrs}h</td>
+        <td><div class="action-row">
+          <button class="btn-sm btn-hours" onclick="prefillHours('${v.volunteer_id}')">+ Hours</button>
+        </div></td>
+      </tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+// ============================================================
+// LOG HOURS
+// ============================================================
+async function logHours() {
+  const id = document.getElementById('hVolId').value.trim();
+  const session = document.getElementById('hSession').value.trim();
+  const hours = parseFloat(document.getElementById('hHours').value);
+  const date = document.getElementById('hDate').value;
+  const status = document.getElementById('hStatus').value;
+  const notes = document.getElementById('hNotes').value.trim();
+  const sucEl = document.getElementById('hoursSuccess');
+  const errEl = document.getElementById('hoursError');
+  sucEl.classList.remove('show'); errEl.classList.remove('show');
+
+  if (!id || !session || !hours || !date) { errEl.textContent = 'Please fill all required fields.'; errEl.classList.add('show'); return; }
+
+  const { error } = await sb.from('hours').insert({ volunteer_id: id, session_name: session, hours, date, status, notes, logged_at: new Date().toISOString() });
+  if (error) { errEl.textContent = 'Error: ' + error.message; errEl.classList.add('show'); return; }
+  sucEl.textContent = `✓ ${hours}h logged for ${id} — "${session}"`;
+  sucEl.classList.add('show');
+  ['hVolId','hSession','hHours','hDate','hNotes'].forEach(id => document.getElementById(id).value = '');
+}
+
+function prefillHours(volId) {
+  showPage('hours');
+  setTimeout(() => { document.getElementById('hVolId').value = volId; }, 100);
+}
+
+// ============================================================
+// OPPORTUNITIES
+// ============================================================
+
+
+function switchArchiveTab(tab) {
+  document.getElementById('archiveHours').style.display = tab === 'hours' ? 'block' : 'none';
+  document.getElementById('archiveOpps').style.display = tab === 'opportunities' ? 'block' : 'none';
+  document.getElementById('archiveTab1').className = 'tab' + (tab === 'hours' ? ' active' : '');
+  document.getElementById('archiveTab2').className = 'tab' + (tab === 'opportunities' ? ' active' : '');
+  if (tab === 'hours') loadArchiveHours();
+  else loadArchiveOpps();
+}
+
+async function loadArchiveHours() {
+  const el = document.getElementById('archiveHoursList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  // Join hours with volunteers to get names
+  const { data: hours } = await sb.from('hours').select('*, volunteers(first_name, last_name)').order('date', { ascending: false });
+  if (!hours || hours.length === 0) { el.innerHTML = '<div class="empty-state">No hours logged yet.</div>'; return; }
+  const total = hours.reduce((s, h) => s + (h.hours || 0), 0);
+  document.getElementById('archiveTotalBadge').textContent = total + 'h total';
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Volunteer</th><th>Session</th><th>Date</th><th>Hours</th><th>Status</th></tr></thead>
+    <tbody>${hours.map(h => `<tr>
+      <td>
+        <div class="vol-name">${h.volunteers ? h.volunteers.first_name + ' ' + h.volunteers.last_name : '—'}</div>
+        <div class="vol-id">${h.volunteer_id}</div>
+      </td>
+      <td style="font-size:13px">${h.session_name}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(h.date)}</td>
+      <td style="font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--yellow);font-weight:300">${h.hours}h</td>
+      <td><span class="opp-badge ${h.status === 'verified' ? 'green' : ''}">${h.status}</span></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+async function loadArchiveOpps() {
+  const el = document.getElementById('archiveOppsList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data: opps } = await sb.from('opportunities').select('*').order('date', { ascending: false });
+  if (!opps || opps.length === 0) { el.innerHTML = '<div class="empty-state">No opportunities posted yet.</div>'; return; }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Location</th><th>Hours</th><th>Status</th></tr></thead>
+    <tbody>${opps.map(o => `<tr>
+      <td><div class="vol-name">${o.title}</div><div class="vol-id" style="font-size:11px;color:rgba(255,255,255,0.35)">${o.description || ''}</div></td>
+      <td style="font-size:13px">${o.type}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(o.date)}</td>
+      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${o.location || '—'}</td>
+      <td style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--mint);font-weight:300">${o.hours}h</td>
+      <td><span class="opp-badge ${o.status === 'open' ? 'green' : ''}">${o.status}</span></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+async function loadPostedOpps() {
+  const el = document.getElementById('postedOppsList');
+  if (!el) return;
+  const { data: opps } = await sb.from('opportunities').select('*').order('date', { ascending: false });
+  if (!opps || opps.length === 0) {
+    el.innerHTML = '<div class="empty-state">No opportunities posted yet.</div>';
+    return;
+  }
+  el.innerHTML = opps.map(o => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:white;margin-bottom:4px">${o.title}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(o.date)} · ${o.type} · ${o.location || '—'} · ${o.hours}h</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="opp-badge ${o.status === 'open' ? 'green' : ''}">${o.status}</span>
+        <button class="btn-sm" style="background:rgba(255,225,77,0.1);color:var(--yellow);border:1px solid rgba(255,225,77,0.2);" onclick="archiveOpp('${o.id}')">Archive</button>
+        <button class="btn-sm btn-reject" onclick="deleteOpp('${o.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+async function archiveOpp(id) {
+  const { error } = await sb.from('opportunities').update({ status: 'archived' }).eq('id', id);
+  if (error) { alert('Error: ' + error.message); return; }
+  // Switch to archive tab to show it
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(i => i.classList.remove('active'));
+  showPage('archive');
+}
+
+async function deleteOpp(id) {
+  if (!confirm('Delete this opportunity? This cannot be undone.')) return;
+  const { error } = await sb.from('opportunities').delete().eq('id', id);
+  if (error) { alert('Error: ' + error.message); return; }
+  loadPostedOpps();
+}
+
+async function postOpportunity() {
+  const title = document.getElementById('oTitle').value.trim();
+  const sucEl = document.getElementById('oppSuccess');
+  const errEl = document.getElementById('oppError');
+  sucEl.classList.remove('show'); errEl.classList.remove('show');
+  if (!title || !document.getElementById('oDate').value) { errEl.textContent = 'Please fill in at least a title and date.'; errEl.classList.add('show'); return; }
+  const { error } = await sb.from('opportunities').insert({
+    title, description: document.getElementById('oDesc').value.trim(),
+    date: document.getElementById('oDate').value,
+    hours: parseFloat(document.getElementById('oHours').value) || 0,
+    location: document.getElementById('oLocation').value.trim(),
+    type: document.getElementById('oType').value === 'other' ? (document.getElementById('oTypeCustom').value.trim() || 'other') : document.getElementById('oType').value,
+    status: 'open', created_at: new Date().toISOString()
+  });
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return; }
+  sucEl.textContent = '✓ Opportunity posted! Volunteers can now see it in their dashboard.';
+  sucEl.classList.add('show');
+  ['oTitle','oDesc','oDate','oHours','oLocation'].forEach(id => document.getElementById(id).value = '');
+}
+
+
+
+
+// ── APP TYPE TOGGLE ──
+let currentAppType = 'volunteer';
+function switchAppType(type) {
+  currentAppType = type;
+  const isVol = type === 'volunteer';
+  document.getElementById('volAppsSection').style.display = isVol ? 'block' : 'none';
+  document.getElementById('ambaAppsSection').style.display = isVol ? 'none' : 'block';
+  const volBtn = document.getElementById('appTypeVolBtn');
+  const ambaBtn = document.getElementById('appTypeAmbaBtn');
+  volBtn.style.cssText = isVol
+    ? 'padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;border:none;background:var(--blue);color:white;cursor:none;box-shadow:0 4px 16px rgba(26,92,255,0.3);transition:all 0.2s;'
+    : 'padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;border:1.5px solid rgba(78,180,255,0.3);background:transparent;color:rgba(78,180,255,0.7);cursor:none;transition:all 0.2s;';
+  ambaBtn.style.cssText = !isVol
+    ? 'padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;border:none;background:linear-gradient(135deg,#7c3aed,#c084fc);color:white;cursor:none;box-shadow:0 4px 16px rgba(192,132,252,0.3);transition:all 0.2s;'
+    : 'padding:10px 24px;border-radius:100px;font-size:13px;font-weight:600;border:1.5px solid rgba(192,132,252,0.3);background:transparent;color:rgba(192,132,252,0.7);cursor:none;transition:all 0.2s;';
+  if (!isVol && allAmbaApps.length === 0) loadAmbaApps();
+}
+
+// ── AMBASSADORS LIST ──
+let currentAmbaId = null;
+
+async function loadAmbassadors() {
+  const el = document.getElementById('ambasListWrap');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data } = await sb.from('ambassadors').select('*').eq('role','ambassador').order('created_at', { ascending: false });
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty-state">No active ambassadors yet.</div>'; return; }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Ambassador</th><th>School</th><th>Grade</th><th>ID</th><th>Since</th><th></th></tr></thead>
+    <tbody>${data.map(a => `<tr style="cursor:default">
+      <td><div class="vol-name">${a.first_name} ${a.last_name}</div><div class="vol-id">${a.email}</div></td>
+      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${a.school || '—'}</td>
+      <td style="font-size:13px">${a.grade || '—'}</td>
+      <td style="font-family:monospace;font-size:12px;color:var(--lilac)">${a.ambassador_id}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(a.created_at)}</td>
+      <td><button class="btn-sm btn-view" onclick="openAmbaDetail('${a.ambassador_id}','${a.first_name} ${a.last_name}','${a.school || ''} · ${a.grade || ''}')">View →</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function openAmbaDetail(id, name, info) {
+  currentAmbaId = id;
+  document.getElementById('detailAmbaName').textContent = name;
+  document.getElementById('detailAmbaInfo').textContent = info;
+  document.getElementById('cDate').value = new Date().toISOString().split('T')[0];
+  ['applications','volunteers','hours','opportunities','archive','tutor-requests','ambassador-apps','gallery','updates','settings','ambassadors'].forEach(p => {
+    const el = document.getElementById('page-' + p);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('page-ambassador-detail').style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  loadDetailContribs();
+}
+
+async function loadDetailContribs() {
+  const el = document.getElementById('detailContribsList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data } = await sb.from('ambassador_contributions').select('*').eq('ambassador_id', currentAmbaId).order('date', { ascending: false });
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty-state">No contributions logged yet.</div>'; return; }
+  el.innerHTML = data.map(c => `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px">${c.title}</div>
+        ${c.description ? `<div style="font-size:12.5px;color:rgba(255,255,255,0.45);margin-bottom:4px">${c.description}</div>` : ''}
+        <div style="font-size:11px;color:rgba(255,255,255,0.3)">${fmtDate(c.date)}</div>
+      </div>
+      <span class="opp-badge" style="background:rgba(192,132,252,0.12);color:var(--lilac);flex-shrink:0;margin-left:12px">${c.type || 'contribution'}</span>
+    </div>`).join('');
+}
+
+async function logContribution() {
+  const title = document.getElementById('cTitle').value.trim();
+  const suc = document.getElementById('contribSuccess');
+  const err = document.getElementById('contribError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  if (!title) { err.textContent = 'Please enter a title.'; err.classList.add('show'); return; }
+  if (!document.getElementById('cDate').value) { err.textContent = 'Please enter a date.'; err.classList.add('show'); return; }
+  const { error } = await sb.from('ambassador_contributions').insert({
+    ambassador_id: currentAmbaId,
+    title,
+    description: document.getElementById('cDesc').value.trim(),
+    type: document.getElementById('cType').value,
+    date: document.getElementById('cDate').value,
+    logged_at: new Date().toISOString()
+  });
+  if (error) { err.textContent = error.message; err.classList.add('show'); return; }
+  suc.textContent = '✓ Contribution logged!'; suc.classList.add('show');
+  document.getElementById('cTitle').value = '';
+  document.getElementById('cDesc').value = '';
+  loadDetailContribs();
+}
+
+// ── AMBASSADOR APPLICATIONS ──
+let allAmbaApps = [], ambaAppFilter = 'all';
+
+async function loadAmbaApps() {
+  const { data } = await sb.from('ambassador_applications').select('*').order('applied_at', { ascending: false });
+  allAmbaApps = data || [];
+  renderAmbaApps(allAmbaApps);
+}
+
+function filterAmbaApps(status) {
+  ambaAppFilter = status;
+  document.querySelectorAll('#page-ambassador-apps .ftab').forEach(t => t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const filtered = status === 'all' ? allAmbaApps : allAmbaApps.filter(a => a.status === status);
+  renderAmbaApps(filtered);
+}
+
+function renderAmbaApps(apps) {
+  const wrap = document.getElementById('ambaAppsWrap');
+  if (!apps.length) { wrap.innerHTML = '<div class="empty-state">No applications found.</div>'; return; }
+  wrap.innerHTML = `<table class="data-table">
+    <thead><tr><th>Applicant</th><th>School</th><th>Grade</th><th>Applied</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${apps.map(a => `<tr>
+      <td><div class="vol-name">${a.first_name} ${a.last_name}</div><div class="vol-id">${a.email}</div></td>
+      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${a.school || '—'}</td>
+      <td style="font-size:13px">${a.grade || '—'}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(a.applied_at)}</td>
+      <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+      <td><div class="action-row">
+        <button class="btn-sm btn-view" onclick="viewAmbaApp('${a.id}')">View</button>
+        ${a.status === 'pending' ? `
+          <button class="btn-sm btn-accept" onclick="actionAmbaApp('${a.id}','accepted')">Accept</button>
+          <button class="btn-sm btn-reject" onclick="actionAmbaApp('${a.id}','rejected')">Reject</button>` : ''}
+      </div></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function viewAmbaApp(id) {
+  const a = allAmbaApps.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('ambaModalInfo').innerHTML = [
+    ['Name', a.first_name + ' ' + a.last_name],
+    ['Email', a.email], ['Phone', a.phone || '—'],
+    ['School', a.school || '—'], ['Grade', a.grade || '—'],
+    ['Board', a.board || '—'], ['Country', a.country || '—'],
+    ['City', a.city || '—'], ['Referred by', a.referral || '—'],
+    ['Applied', fmtDate(a.applied_at)],
+    ['Status', `<span class="status-badge status-${a.status}">${a.status}</span>`]
+  ].map(([l,v]) => `<div class="info-item"><label>${l}</label><span>${v}</span></div>`).join('');
+
+  const qs = [
+    ['1. Leadership experience', a.q1],
+    ['2. Why Lighthouse at your school', a.q2],
+    ['3. Proposed initiative or campaign', a.q3],
+    ['4. Approaching school administration', a.q4],
+    ['5. What community service means to you', a.q5],
+  ];
+  const rcHtml = a.report_card_url
+    ? `<br><br><strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:8px">Report Card</strong>
+       <a href="YOUR_SUPABASE_URL/storage/v1/object/public/applications/${a.report_card_url}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(78,180,255,0.12);border:1px solid rgba(78,180,255,0.25);border-radius:10px;color:#4eb4ff;text-decoration:none;font-size:13px;font-weight:600;">📄 View Report Card →</a>`
+    : '';
+
+  document.getElementById('ambaModalAnswers').innerHTML =
+    qs.map(([label, answer]) =>
+      `<strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:6px;margin-top:16px">${label}</strong>
+       <div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7">${answer || '—'}</div>`
+    ).join('') + rcHtml;
+
+  document.getElementById('ambaModalActions').innerHTML = a.status === 'pending' ? `
+    <button class="btn-primary" style="background:rgba(61,255,192,0.15);color:var(--mint);border:1px solid rgba(61,255,192,0.25);box-shadow:none" onclick="actionAmbaApp('${a.id}','accepted');closeAmbaModal()">✓ Accept</button>
+    <button class="btn-primary" style="background:rgba(255,107,91,0.1);color:#ff9b8f;border:1px solid rgba(255,107,91,0.2);box-shadow:none;margin-left:10px" onclick="actionAmbaApp('${a.id}','rejected');closeAmbaModal()">✕ Reject</button>` : '';
+
+  document.getElementById('ambaAppModal').classList.add('show');
+}
+
+async function actionAmbaApp(id, action) {
+  const a = allAmbaApps.find(x => x.id === id);
+  if (!a) return;
+
+  if (action === 'accepted') {
+    // Count existing ambassadors to generate next ID
+    const { data: existingAmbas } = await sb.from('ambassadors').select('ambassador_id');
+    const seq = String((existingAmbas ? existingAmbas.length : 0) + 1).padStart(4, '0');
+    const ambassadorId = 'LH-AMBA-' + seq;
+
+    const { error: insertErr } = await sb.from('ambassadors').insert({
+      ambassador_id: ambassadorId,
+      first_name: a.first_name,
+      last_name: a.last_name,
+      email: a.email,
+      phone: a.phone || null,
+      school: a.school || null,
+      grade: a.grade || null,
+      role: 'ambassador',
+      created_at: new Date().toISOString()
+    });
+
+    if (insertErr) {
+      alert('Error adding to ambassadors table: ' + insertErr.message);
+      return;
+    }
+
+    // Send password setup email
+    await sb.auth.resetPasswordForEmail(a.email, {
+      redirectTo: window.location.origin + '/volunteer-login.html'
+    });
+
+    alert('✓ Accepted!\n\nAmbassador ID: ' + ambassadorId + '\n\nA password setup email has been sent to ' + a.email + '\n\nMake sure to tell them their ID is: ' + ambassadorId);
+  }
+
+  await sb.from('ambassador_applications').update({ status: action }).eq('id', id);
+  await loadAmbaApps();
+}
+
+function closeAmbaModal() { document.getElementById('ambaAppModal').classList.remove('show'); }
+
+
+// ── RESET REQUESTS ──
+async function loadResetRequests() {
+  const el = document.getElementById('resetReqList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data } = await sb.from('password_reset_requests').select('*').order('requested_at', { ascending: false });
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty-state">No reset requests.</div>'; return; }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Name</th><th>ID</th><th>Email</th><th>Type</th><th>Requested</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${data.map(r => `<tr>
+      <td><div class="vol-name">${r.name}</div></td>
+      <td style="font-family:monospace;font-size:12px;color:var(--sky)">${r.volunteer_id}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.5)">${r.email}</td>
+      <td><span class="opp-badge ${r.type === 'ambassador' ? '' : 'green'}">${r.type}</span></td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(r.requested_at)}</td>
+      <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+      <td>
+        ${r.status === 'pending'
+          ? `<button class="btn-sm btn-accept" onclick="sendReset('${r.id}','${r.email}')">Send Reset</button>`
+          : `<span style="color:var(--mint);font-size:12px;font-weight:600;">✓ Done</span>`}
+      </td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+async function sendReset(id, email) {
+  await sb.from('password_reset_requests').update({ status: 'done' }).eq('id', id);
+  loadResetRequests();
+}
+
+
+
+// ── TUTOR REQUESTS ──
+let allTutorReqs = [];
+async function loadTutorRequests() {
+  const el = document.getElementById('tutorReqList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data } = await sb.from('tutor_requests').select('*').order('submitted_at', { ascending: false });
+  allTutorReqs = data || [];
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty-state">No tutor requests yet.</div>'; return; }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Name</th><th>Email</th><th>School</th><th>Grade</th><th>Subjects Needed</th><th>Submitted</th><th>Action</th></tr></thead>
+    <tbody>${data.map(r => `<tr>
+      <td><div class="vol-name">${r.first_name} ${r.last_name}</div><div class="vol-id">${r.phone || ''}</div></td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.5)">${r.email}</td>
+      <td style="font-size:13px">${r.school || '—'}</td>
+      <td style="font-size:13px">${r.grade || '—'}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.6)">${(r.subjects || []).join(', ') || '—'}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4)">${fmtDate(r.submitted_at)}</td>
+      <td><button class="btn-sm btn-view" onclick="viewTutorReq('${r.id}')">View</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function viewTutorReq(id) {
+  const r = allTutorReqs.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('tutorModalInfo').innerHTML = [
+    ['Name', r.first_name + ' ' + r.last_name],
+    ['Email', r.email],
+    ['Phone', r.phone || '—'],
+    ['Age', r.age || '—'],
+    ['School', r.school || '—'],
+    ['Grade', r.grade || '—'],
+    ['Submitted', fmtDate(r.submitted_at)],
+    ['Status', '<span class="status-badge status-pending">pending</span>'],
+  ].map(([l,v]) => `<div class="info-item"><label>${l}</label><span>${v}</span></div>`).join('');
+
+  const subjects = (r.subjects || []).join(', ') || 'None specified';
+  const notes = r.notes || '';
+  document.getElementById('tutorModalNotes').innerHTML =
+    '<strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:8px">Subjects Needed</strong>' + subjects +
+    (notes ? '<br><br><strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-top:10px;margin-bottom:6px">Additional Notes</strong>' + notes : '');
+
+  document.getElementById('tutorModal').classList.add('show');
+}
+function closeTutorModal() { document.getElementById('tutorModal').classList.remove('show'); }
+
+// ── GALLERY ──
+async function loadGalleryList() {
+  const el = document.getElementById('galleryList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data } = await sb.from('gallery').select('*').order('created_at', { ascending: false });
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty-state">No photos added yet.</div>'; return; }
+  el.innerHTML = data.map(p => `
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <img src="${p.image_url}" style="width:60px;height:45px;object-fit:cover;border-radius:8px;background:rgba(255,255,255,0.1)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${p.caption || '—'}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35)">${p.category} · ${fmtDate(p.created_at)}</div>
+      </div>
+      <button class="btn-sm btn-reject" onclick="deletePhoto('${p.id}')">Remove</button>
+    </div>`).join('');
+}
+
+async function addGalleryPhoto() {
+  const url = document.getElementById('gImageUrl').value.trim();
+  const suc = document.getElementById('gallerySuccess');
+  const err = document.getElementById('galleryError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  if (!url) { err.textContent = 'Please enter an image URL.'; err.classList.add('show'); return; }
+  const { error } = await sb.from('gallery').insert({
+    image_url: url,
+    caption: document.getElementById('gCaption').value.trim(),
+    category: document.getElementById('gCategory').value,
+    created_at: new Date().toISOString()
+  });
+  if (error) { err.textContent = error.message; err.classList.add('show'); return; }
+  suc.textContent = '✓ Photo added to gallery!'; suc.classList.add('show');
+  document.getElementById('gImageUrl').value = '';
+  document.getElementById('gCaption').value = '';
+  loadGalleryList();
+}
+
+async function deletePhoto(id) {
+  if (!confirm('Remove this photo from the gallery?')) return;
+  await sb.from('gallery').delete().eq('id', id);
+  loadGalleryList();
+}
+
+// ── UPDATES ──
+async function loadUpdatesList() {
+  const el = document.getElementById('updatesList');
+  el.innerHTML = '<div class="loading">Loading…</div>';
+  const { data } = await sb.from('updates').select('*').order('posted_at', { ascending: false });
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty-state">No updates posted yet.</div>'; return; }
+  el.innerHTML = data.map(u => `
+    <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px">
+        <div style="font-size:14px;font-weight:600;flex:1">${u.title}</div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <span class="opp-badge ${u.archived ? '' : 'green'}">${u.archived ? 'archived' : 'live'}</span>
+          <button class="btn-sm" style="background:rgba(255,225,77,0.1);color:var(--yellow);border:1px solid rgba(255,225,77,0.2)" onclick="archiveUpdate('${u.id}', ${!u.archived})">${u.archived ? 'Restore' : 'Archive'}</button>
+          <button class="btn-sm btn-reject" onclick="deleteUpdate('${u.id}')">Delete</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6">${u.body}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:6px">${fmtDate(u.posted_at)}</div>
+    </div>`).join('');
+}
+
+async function postUpdate() {
+  const title = document.getElementById('uTitle').value.trim();
+  const body = document.getElementById('uBody').value.trim();
+  const suc = document.getElementById('updateSuccess');
+  const err = document.getElementById('updateError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  if (!title || !body) { err.textContent = 'Please fill in both title and body.'; err.classList.add('show'); return; }
+  const { error } = await sb.from('updates').insert({ title, body, posted_at: new Date().toISOString() });
+  if (error) { err.textContent = error.message; err.classList.add('show'); return; }
+  suc.textContent = '✓ Update posted! It will appear on the homepage.'; suc.classList.add('show');
+  document.getElementById('uTitle').value = '';
+  document.getElementById('uBody').value = '';
+  loadUpdatesList();
+}
+
+async function archiveUpdate(id, archive) {
+  await sb.from('updates').update({ archived: archive }).eq('id', id);
+  loadUpdatesList();
+}
+async function deleteUpdate(id) {
+  if (!confirm('Delete this update permanently?')) return;
+  await sb.from('updates').delete().eq('id', id);
+  loadUpdatesList();
+}
+
+// ── SETTINGS ──
+async function loadSettings() {
+  const { data } = await sb.from('settings').select('*');
+  if (!data) return;
+  data.forEach(s => {
+    const el = document.getElementById(s.key);
+    if (el) el.value = s.value;
+  });
+}
+
+async function saveSettings() {
+  const suc = document.getElementById('settingsSuccess');
+  const err = document.getElementById('settingsError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  const keys = ['stat_schools','stat_books','stat_children','stat_orphanages'];
+  for (const key of keys) {
+    const val = document.getElementById(key).value.trim();
+    if (!val) continue;
+    const { error } = await sb.from('settings').upsert({ key, value: val, updated_at: new Date().toISOString() });
+    if (error) { err.textContent = 'Error saving: ' + error.message; err.classList.add('show'); return; }
+  }
+  suc.textContent = '✓ Stats updated! Homepage will reflect new values immediately.';
+  suc.classList.add('show');
+}
+
+function showPage(page) {
+  ['applications','volunteers','hours','opportunities','archive','tutor-requests','gallery','updates','settings','ambassadors','ambassador-detail','reset-requests'].forEach(p => {
+    document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if (page === 'volunteers') loadVolunteers();
+  if (page === 'opportunities') loadPostedOpps();
+  if (page === 'archive') { loadArchiveHours(); }
+  if (page === 'tutor-requests') loadTutorRequests();
+  if (page === 'ambassadors') loadAmbassadors();
+
+  if (page === 'gallery') { loadGalleryList(); }
+  if (page === 'updates') loadUpdatesList();
+  if (page === 'settings') loadSettings();
+  if (page === 'reset-requests') loadResetRequests();
+}
+function closeModal() { document.getElementById('appModal').classList.remove('show'); }
+async function handleSignOut() { await sb.auth.signOut(); window.location.href = 'volunteer-login.html'; }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—'; }
+
+
+document.getElementById('appModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('tutorModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeTutorModal(); });
+document.getElementById('ambaAppModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAmbaModal(); });
+init();
+</script>
+</body>
+</html>
